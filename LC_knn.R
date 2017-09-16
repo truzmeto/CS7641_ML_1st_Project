@@ -1,10 +1,11 @@
 #!/usr/bin/Rscript
 
 #loading reuired libraries
-library(ggplot2)
+library("ggplot2")
 library("lattice") 
 library("caret")
 library("plyr")
+library("Rmisc")
 
 ## setting seed for random number generator
 set.seed(300)
@@ -75,7 +76,7 @@ con_mat$table
 # Learning Curve
 # Performe knn prediction by increasing data size. Plot data size vs error, and performance
 
-N_iter <- 10    #|> number of iterations for learning curve
+N_iter <- 20    #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_err <- 0
@@ -118,19 +119,20 @@ for (i in 1:N_iter) {
     prediction_knn_test <- predict(knnFit, newdata = testing)
     con_mat_test <- confusionMatrix(prediction_knn_test, testing$loan_status)
     
-    # predict with knn on train set
-    prediction_knn_train <- predict(knnFit, newdata = training1)
-    con_mat_train <- confusionMatrix(prediction_knn_train, training1$loan_status)
+    # predict with knn on validation set
+    validation <- training1[createDataPartition(y=training1$loan_status, p = 0.3, list=FALSE),]
+    prediction_knn_train <- predict(knnFit, newdata = validation)
+    con_mat_train <- confusionMatrix(prediction_knn_train, validation$loan_status)
     
     
     best_k[i] <-  as.numeric(knnFit$bestTune[1])
     data_size[i] <- nrow(training1)
     
-    test_err[i] <-  1 - as.numeric(con_mat_test$overall[1])
+    #test_err[i] <-  1 - as.numeric(con_mat_test$overall[1])
     test_accur[i] <- as.numeric(con_mat_test$overall[1])
     test_kap[i] <- as.numeric(con_mat_test$overall[2])
     
-    train_err[i] <-  1 - as.numeric(con_mat_train$overall[1])
+    #train_err[i] <-  1 - as.numeric(con_mat_train$overall[1])
     train_accur[i] <- as.numeric(con_mat_train$overall[1])
     train_kap[i] <- as.numeric(con_mat_train$overall[2])
 }
@@ -140,16 +142,17 @@ results <- data.frame(test_err,test_accur,test_kap,train_err,train_accur,train_k
 
 #plot some results
 #library(extrafont)
-library("Rmisc")
 
 p1 <- ggplot(results, aes(x=data_size)) +
           geom_line(aes(y = train_accur, colour = "train")) + 
           geom_line(aes(y = test_accur, colour = "test")) +
+          geom_point(aes(y = train_accur,colour = "train")) + 
+          geom_point(aes(y = test_accur,colour = "test")) +
           #geom_point() +
           theme_bw() +
           #ylim(0.0, 1.) +
           #xlim(0.0, 1) +
-          labs(title = "Learning Curve", x = "Data Size", y = "Accuracy", color="") +
+          labs(title = "Learning Curve KNN", x = "Training Size", y = "Accuracy", color="") +
           theme(legend.position = c(0.2,0.8),
               axis.title = element_text(size = 16.0),
               axis.text = element_text(size=10, face = "bold"),
@@ -162,7 +165,7 @@ p2 <- ggplot(results, aes(x=data_size, y=cpu_time)) +
           geom_line() + 
           geom_point(colour="red") +
           theme_bw() +
-          labs(title = "Performance Benchmarking", x = "Data Size", y = "Clock Time", color="") +
+          labs(title = "Performance Benchmarking KNN", x = "Training Size", y = "Clock Time", color="") +
           theme(axis.title = element_text(size = 16.0),
                 axis.text = element_text(size=10, face = "bold"),
                 plot.title = element_text(size = 15, hjust = 0.5),
