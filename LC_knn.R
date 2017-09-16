@@ -89,17 +89,17 @@ cpu_time <- 0
 best_k <- 0
 data_size <- 0
 
+set.seed(500)   #|> setting random seed
+data_frac <- 0.8 
+
 for (i in 1:N_iter) { 
     
-    set.seed(i*10)   #|> setting random seed
   
-    data_frac <- 0.002*i 
-    training <- data[createDataPartition(y=data$loan_status, p = data_frac, list=FALSE),]
+    training <- training[createDataPartition(y=data$loan_status, p = data_frac, list=FALSE),]
     
     ## apply KNN algorithm
     ctrl <- trainControl(method = "repeatedcv",
-                        repeats = 5)
-    #,summaryFunction = twoClassSummary)
+                        repeats = 5)#,summaryFunction = twoClassSummary)
     
     start_time <- Sys.time() #start the clock
     knnFit <- train(loan_status ~ .,
