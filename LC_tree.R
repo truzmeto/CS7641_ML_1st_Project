@@ -14,13 +14,13 @@ set.seed(300)
 data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
 
 ## extract 10% of data and perfor hyperparameter tuning 
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
+sub_data <- data[createDataPartition(y=data$loan_status, p = 0.2, list=FALSE),]
 
 # break sub data into train test and validation sets
 indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
 training <- sub_data[indx, ]
 testing <- sub_data[-indx, ] 
-validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.5, list=FALSE), ]
+validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.3, list=FALSE), ]
 
 
 ##############################################################################################
@@ -121,7 +121,7 @@ for (i in 1:N_iter) {
   con_mat_pruned_test$overall
   
   # predicting with pruned tree on train sub set
-  validation1 <- training1[createDataPartition(y=training1$loan_status, p = 0.5, list=FALSE),]
+  validation1 <- training1[createDataPartition(y=training1$loan_status, p = 0.3, list=FALSE),]
   prediction_pruned_train <- predict(pruned_tree, validation1, type = "class")
   con_mat_pruned_train <- confusionMatrix(prediction_pruned_train, validation1$loan_status)
   con_mat_pruned_train$overall
@@ -130,11 +130,9 @@ for (i in 1:N_iter) {
   cpu_time[i] <- as.numeric(end_time - start_time)
   data_size[i] <- nrow(training1)
   
-  #test_err[i] <-  1 - as.numeric(con_mat_test$overall[1])
   test_accur[i] <- as.numeric(con_mat_pruned_test$overall[1])
   test_kap[i] <- as.numeric(con_mat_pruned_test$overall[2])
   
-  #train_err[i] <-  1 - as.numeric(con_mat_train$overall[1])
   train_accur[i] <- as.numeric(con_mat_pruned_train$overall[1])
   train_kap[i] <- as.numeric(con_mat_pruned_train$overall[2])
 }
@@ -142,16 +140,14 @@ for (i in 1:N_iter) {
 results <- data.frame(test_accur,test_kap,train_accur,train_kap, cpu_time, data_size)
 
 #plot some results
-#library(extrafont)
-
 p <- ggplot(results, aes(x=data_size)) +
       geom_line(aes(y = train_accur, colour = "train")) + 
       geom_line(aes(y = test_accur, colour = "test")) +
       geom_point(aes(y = train_accur,colour = "train")) + 
       geom_point(aes(y = test_accur,colour = "test")) +
       theme_bw() +
-      ylim(0.5, .90) +
-      #xlim(0.0, 1) +
+      ylim(0.65, .85) +
+      #xlim(-0.01, ) +
       labs(title = "Learning Curve Prunned Tree Model", x = "Training Size", y = "Accuracy", color="") +
       theme(legend.position = c(0.2,0.8),
             axis.title = element_text(size = 16.0),
