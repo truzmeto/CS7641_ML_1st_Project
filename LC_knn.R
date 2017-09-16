@@ -1,6 +1,7 @@
 #!/usr/bin/Rscript
 
 #loading reuired libraries
+library(ggplot2)
 library("lattice") 
 library("caret")
 library("plyr")
@@ -98,7 +99,7 @@ for (i in 1:N_iter) {
     # break sub data into train and test sets
     indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
     training <- sub_data[indx, ]
-    testing <- sub_data[-indx, ] 
+    #testing <- sub_data[-indx, ] 
 
     ## apply KNN algorithm
     ctrl <- trainControl(method = "repeatedcv",
@@ -146,7 +147,7 @@ library("Rmisc")
 p1 <- ggplot(results, aes(x=data_size)) +
           geom_line(aes(y = train_err, colour = "train")) + 
           geom_line(aes(y = test_err, colour = "test")) +
-          #geom_point(colour="red") +
+          geom_point() +
           theme_bw() +
           #ylim(0.0, 1.) +
           #xlim(0.0, 1) +
