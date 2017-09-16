@@ -1,0 +1,233 @@
+---
+title: "Lending Club"
+author: "T. Ruzmetov"
+date: "September 9, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(warn=-1)
+```
+
+## Importing libraries
+
+```{r , echo=TRUE}
+library("lattice") 
+library("caret")
+library("rpart")
+library("rattle")
+library("randomForest")
+library("plyr")
+library("nnet")
+library("stringr")
+```
+
+## Data Cleaning and Feature Engineering
+
+```{r loading}
+## loading locally stored data
+ori_data <- read.csv("data/loan.csv", na.strings = c("NA",""))
+```
+
+
+```{r}
+data <- ori_data
+# keep important columns
+colnames <- c("loan_status","loan_amnt", "term","int_rate", "installment","grade","sub_grade",
+                   "emp_length","home_ownership","annual_inc","verification_status","issue_d","dti",
+                   "earliest_cr_line","open_acc","revol_bal","revol_util","total_acc")
+data <- data[, colnames]
+
+# extract number from string
+data$emp_length <- as.numeric(str_extract(data$emp_length,"[[:digit:]]+"))
+data$earliest_cr_line <- as.numeric(str_extract(data$earliest_cr_line,"[[:digit:]]+"))
+data$term <- as.numeric(str_extract(data$term,"[[:digit:]]+"))
+data$issue_year <- as.numeric(str_extract(data$issue_d,"[[:digit:]]+"))
+data$issue_d <- NULL
+data$sub_grade <- NULL
+```
+
+### Keeping columns with less than 50% missing values
+
+```{r}
+#counting percentage of NA's for each feature
+NA_cols <- round(colSums(is.na(data))/nrow(data) *100,2)
+keep_colnames <- names(NA_cols[NA_cols < 50.0])
+data <- data[, keep_colnames]
+dim(data)
+```
+
+
+
+```{r}
+
+newdata <- data[!(data$loan_status %in% "Current"), ]
+data <- newdata
+data$status <- ifelse(data$loan_status == "Fully Paid" |
+                      data$loan_status == "Does not meet the credit policy.  Status:Fully Paid", 1,0)
+data$loan_status <- NULL
+rm(newdata)
+```            
+
+
+```{r, eval=FALSE}
+# missing value imputation
+for(i in 1:ncol(data)){
+    if(class(data[,i]) == "numeric") { 
+        data[is.na(data[,i]), i] <- mean(data[,i], na.rm = TRUE)
+    }
+}
+```
+
+
+
+## Data Partitioning 
+
+```{r, fig.width=12}
+## setting seed for random number generator
+set.seed(2017)
+
+## creating a data partition
+indx1 <- createDataPartition(y=data$status, p = 0.02, list=FALSE)
+train1 <- data[indx1, ]
+
+# break train1 into 4 peices
+indx2 <- createDataPartition(y=train1$status, p = 0.70, list=FALSE)
+training <- train1[indx2, ]
+testing <- train1[-indx2, ] 
+
+```
+
+
+##KNN
+
+```{r,eval=FALSE,echo=FALSE}
+# convert factor features to 
+FacToString <- function(input) {
+    
+  for(i in 1:ncol(input)){
+        if(class(input[,i]) == "factor") { 
+            input[,i] <- as.integer(as.factor(input[,i])) 
+        }
+  }
+  input
+}
+```
+
+
+```{r}
+training <- FacToString(training)
+testing <- FacToString(testing)
+
+training$status <- as.factor(training$status)
+testing$status <- as.factor(testing$status)
+
+set.seed(400)
+ctrl <- trainControl(method="repeatedcv",repeats = 5)#,summaryFunction = twoClassSummary)
+knnFit <- train(status ~ ., data = training, method = "knn", trControl = ctrl, preProcess = c("center","scale"), tuneLength = 20)
+
+#Output of kNN fit
+knnFit
+plot(knnFit)
+
+prediction_knn <- predict(knnFit, newdata = testing)
+confusionMatrix(prediction_knn, testing$status)
+```
+
+
+## Decision Trees
+
+```{r}
+## building a model with trees
+model_trees <- rpart(factor(status) ~. , data = train,
+method="class",
+#control = ("maxdepth = 20"),
+control=rpart.control(minsplit=3, minbucket = 2, cp=0.0006))
+#parms = list(split = "information"))#, prior = c(.55,.45)))
+
+##plotting trees as dendograms 
+fancyRpartPlot(model_trees, sub = "Tree Diagram")
+
+#predicting with trees
+prediction_trees <- predict(model_trees, test, type = "class")
+kappa_trees <- confusionMatrix(prediction_trees, test$status)
+
+kappa_trees$overall[1]
+```
+
+
+
+## Pruning the Tree
+
+```{r}
+## apply prunning 
+cp <- model_trees$cptable[which.min(model_trees$cptable[,"xerror"]),"CP"]
+pruned_tree <- prune(model_trees, cp = cp)
+#plot(pruned_tree); text(pruned_tree)
+fancyRpartPlot(pruned_tree, sub = "Prunned Tree Diagram")
+prediction_ptrees <- predict(pruned_tree, test, type = "class")
+kappa_ptrees <- confusionMatrix(prediction_ptrees, test$status)
+kappa_ptrees$overall[1]
+plotcp(pruned_tree)
+
+```
+
+
+
+## Boosting
+
+```{r}
+model_boost <- train(factor(status) ~  grade + int_rate  + term +revol_util,
+                     method='ada', data = train, verbose=FALSE)
+
+print(model_boost)
+summary(model_boost)
+
+## making a prediction
+prediction_boost <- predict(model_boost, test, type = "raw")
+confusionMatrix(prediction_boost, test$status)$overall[1]
+```
+
+
+## Neural Network Model
+
+```{r,eval=TRUE,echo=FALSE}
+set.seed(2017)
+model_nnet <- nnet(factor(status) ~  grade + int_rate + term +revol_util, 
+                     data = train, size = 40, 
+                     decay = 5e-4, maxit = 50)
+
+prediction_nnet <- predict(model_nnet, newdata=test, type = "class")
+conf_nnet <- confusionMatrix(prediction_nnet, test$status)
+conf_nnet$overall[1]
+```
+
+
+## SVM
+
+```{r,eval=FALSE}
+TrainCtrl <- trainControl(method = "repeatedcv", number = 5,repeats=5,verbose = FALSE)
+
+set.seed(512) 
+SVMgrid <- expand.grid(sigma = c(0.0577), C = c(2.21049))
+modelSvmRRB <- train(factor(Survived) ~ 
+                         Pclass + Sex + Age + SibSp + Parch + Fare +
+                         Embarked + Titles + AdultTeenChi + Fsize,
+                         data = Training,    
+                         method="svmRadial",
+                         trControl=TrainCtrl,
+                         tuneGrid = SVMgrid,
+                         preProc = c("scale","YeoJohnson"),
+                         verbose=FALSE)
+
+prediction_SVM <- predict(modelSvmRRB, CrossVal)
+
+#Accuracy(prediction_SVM, CrossVal$Survived)
+confusionMatrix(prediction_SVM, CrossVal$Survived)$overall[2]
+
+```
+
+
+## KNN
+
