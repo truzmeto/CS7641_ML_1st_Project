@@ -94,13 +94,8 @@ for (i in 1:N_iter) {
     set.seed(i*10)   #|> setting random seed
   
     data_frac <- 0.002*i 
-    sub_data <- data[createDataPartition(y=data$loan_status, p = data_frac, list=FALSE),]
+    training <- data[createDataPartition(y=data$loan_status, p = data_frac, list=FALSE),]
     
-    # break sub data into train and test sets
-    indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
-    training <- sub_data[indx, ]
-    #testing <- sub_data[-indx, ] 
-
     ## apply KNN algorithm
     ctrl <- trainControl(method = "repeatedcv",
                         repeats = 5)
@@ -127,7 +122,7 @@ for (i in 1:N_iter) {
     
     
     best_k[i] <-  as.numeric(knnFit$bestTune[1])
-    data_size[i] <- nrow(sub_data)
+    data_size[i] <- nrow(training)
     
     test_err[i] <-  1 - as.numeric(con_mat_test$overall[1])
     test_accur[i] <- as.numeric(con_mat_test$overall[1])
@@ -147,7 +142,7 @@ library("Rmisc")
 p1 <- ggplot(results, aes(x=data_size)) +
           geom_line(aes(y = train_err, colour = "train")) + 
           geom_line(aes(y = test_err, colour = "test")) +
-          geom_point() +
+          #geom_point() +
           theme_bw() +
           #ylim(0.0, 1.) +
           #xlim(0.0, 1) +
@@ -173,6 +168,7 @@ p2 <- ggplot(results, aes(x=data_size, y=cpu_time)) +
                 axis.text.y = element_text(colour="black"))
 
 #plot and save
-png("figs/knn_learning_curve.png", width=8.0, height = 4.0, units = "in", res=800)
+#png("figs/knn_learning_curve.png", width=8.0, height = 4.0, units = "in", res=800)
 suppressWarnings(multiplot(p1, p2, cols=2))
-dev.off()
+#dev.off()
+results
