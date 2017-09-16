@@ -31,8 +31,8 @@ data$loan_status <- as.factor(data$loan_status)
 ##-------------------------------- Experiment 1 -------------------------------------## 
 # Find optimum k value, which correspond to highest accuracy
 
-## extract 2% of data and perfor hyperparameter tuning with 5 fold cross validation
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.02, list=FALSE),]
+## extract some % of data and perfor hyperparameter tuning with 5 fold cross validation
+sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
 
 # break sub data into train and test sets
 indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
@@ -90,12 +90,14 @@ best_k <- 0
 data_size <- 0
 
 set.seed(500)   #|> setting random seed
-data_frac <- 0.8 
+train_frac <- 0.8 
+
+training1 <- training
 
 for (i in 1:N_iter) { 
     
-  
-    training <- training[createDataPartition(y=data$loan_status, p = data_frac, list=FALSE),]
+    new_train <- training1 
+    training1 <- new_train[createDataPartition(y=new_train$loan_status, p = train_frac, list=FALSE),]
     
     ## apply KNN algorithm
     ctrl <- trainControl(method = "repeatedcv",
@@ -103,7 +105,7 @@ for (i in 1:N_iter) {
     
     start_time <- Sys.time() #start the clock
     knnFit <- train(loan_status ~ .,
-                    data = training,
+                    data = training1,
                     method = "knn",
                     trControl = ctrl,
                     preProcess = c("center","scale"),
@@ -117,12 +119,12 @@ for (i in 1:N_iter) {
     con_mat_test <- confusionMatrix(prediction_knn_test, testing$loan_status)
     
     # predict with knn on train set
-    prediction_knn_train <- predict(knnFit, newdata = training)
-    con_mat_train <- confusionMatrix(prediction_knn_train, training$loan_status)
+    prediction_knn_train <- predict(knnFit, newdata = training1)
+    con_mat_train <- confusionMatrix(prediction_knn_train, training1$loan_status)
     
     
     best_k[i] <-  as.numeric(knnFit$bestTune[1])
-    data_size[i] <- nrow(training)
+    data_size[i] <- nrow(training1)
     
     test_err[i] <-  1 - as.numeric(con_mat_test$overall[1])
     test_accur[i] <- as.numeric(con_mat_test$overall[1])
@@ -135,18 +137,19 @@ for (i in 1:N_iter) {
 
 results <- data.frame(test_err,test_accur,test_kap,train_err,train_accur,train_kap,cpu_time, best_k, data_size)
 
+
 #plot some results
 #library(extrafont)
 library("Rmisc")
 
 p1 <- ggplot(results, aes(x=data_size)) +
-          geom_line(aes(y = train_err, colour = "train")) + 
-          geom_line(aes(y = test_err, colour = "test")) +
+          geom_line(aes(y = train_accur, colour = "train")) + 
+          geom_line(aes(y = test_accur, colour = "test")) +
           #geom_point() +
           theme_bw() +
           #ylim(0.0, 1.) +
           #xlim(0.0, 1) +
-          labs(title = "Learning Curve", x = "Data Size", y = "Error", color="") +
+          labs(title = "Learning Curve", x = "Data Size", y = "Accuracy", color="") +
           theme(legend.position = c(0.2,0.8),
               axis.title = element_text(size = 16.0),
               axis.text = element_text(size=10, face = "bold"),
