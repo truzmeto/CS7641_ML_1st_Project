@@ -46,7 +46,7 @@ validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.3, list
 
 ## Stochastic grad boosting
 
-gbmGrid <-  expand.grid(interaction.depth = 3, #c(2, 3, 4, 5), 
+gbmGrid <-  expand.grid(interaction.depth = c(2, 3, 4, 5), 
                         n.trees = (5:40)*2,
                         shrinkage = c(0.1,0.15,0.2),
                         n.minobsinnode = 20)
@@ -65,9 +65,9 @@ gbmFit <- train(factor(loan_status) ~ ., data = training,
 gbmFit
 
 #plot and save
-pdf("figs/boost_acc_iter_shrink.pdf")
+#pdf("figs/boost_acc_iter_shrink.pdf")
 plot(gbmFit)
-dev.off()
+#dev.off()
 
 
 
