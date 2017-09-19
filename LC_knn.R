@@ -11,7 +11,7 @@ library("Rmisc")
 set.seed(300)
 
 ## loading cleaned data
-data <- read.table("clean_data/loan.txt", sep = " ", header = TRUE)
+data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
 
 # function to convert factor features to numeric
 FacToString <- function(input) {
@@ -43,7 +43,8 @@ testing <- sub_data[-indx, ]
 ## apply KNN algorithm
 set.seed(400)
 ctrl <- trainControl(method = "repeatedcv",
-                     repeats = 5)
+                     number = 5,
+                     repeats = 2)
                     #,summaryFunction = twoClassSummary)
 
 
@@ -53,7 +54,6 @@ knnFit <- train(loan_status ~ .,
                 trControl = ctrl,
                 preProcess = c("center","scale"),
                 tuneLength = 20)
-
 
 #Output of kNN fit
 knnFit
@@ -76,7 +76,7 @@ con_mat$table
 # Learning Curve
 # Performe knn prediction by increasing data size. Plot data size vs error, and performance
 
-N_iter <- 20    #|> number of iterations for learning curve
+N_iter <- 20  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_err <- 0
@@ -95,14 +95,20 @@ train_frac <- 0.8
 
 training1 <- training
 
+ctrl <- trainControl( method = "cv")
+    # method = "repeatedcv",
+    #repeats = 2)#,summaryFunction = twoClassSummary)
+
+grid <-  expand.grid(k = 41)
+
+
 for (i in 1:N_iter) { 
     
     new_train <- training1 
     training1 <- new_train[createDataPartition(y=new_train$loan_status, p = train_frac, list=FALSE),]
     
     ## apply KNN algorithm
-    ctrl <- trainControl(method = "repeatedcv",
-                        repeats = 5)#,summaryFunction = twoClassSummary)
+    
     
     start_time <- Sys.time() #start the clock
     knnFit <- train(loan_status ~ .,
@@ -110,7 +116,8 @@ for (i in 1:N_iter) {
                     method = "knn",
                     trControl = ctrl,
                     preProcess = c("center","scale"),
-                    tuneLength = 20)
+                    #tuneLength = 2,
+                    tuneGrid=grid)
     
     end_time <- Sys.time() # end the clock
     cpu_time[i] <- as.numeric(end_time - start_time)
@@ -124,7 +131,6 @@ for (i in 1:N_iter) {
     prediction_knn_train <- predict(knnFit, newdata = validation)
     con_mat_train <- confusionMatrix(prediction_knn_train, validation$loan_status)
     
-    
     best_k[i] <-  as.numeric(knnFit$bestTune[1])
     data_size[i] <- nrow(training1)
     
@@ -137,7 +143,7 @@ for (i in 1:N_iter) {
     train_kap[i] <- as.numeric(con_mat_train$overall[2])
 }
 
-results <- data.frame(test_err,test_accur,test_kap,train_err,train_accur,train_kap,cpu_time, best_k, data_size)
+results <- data.frame(test_accur,test_kap,train_accur,train_kap,cpu_time, best_k, data_size)
 
 
 #plot some results
@@ -161,20 +167,8 @@ p1 <- ggplot(results, aes(x=data_size)) +
               axis.text.x = element_text(colour="black"),
               axis.text.y = element_text(colour="black"))
 
-p2 <- ggplot(results, aes(x=data_size, y=cpu_time)) +
-          geom_line() + 
-          geom_point(colour="red") +
-          theme_bw() +
-          labs(title = "Performance Benchmarking KNN", x = "Training Size", y = "Clock Time", color="") +
-          theme(axis.title = element_text(size = 16.0),
-                axis.text = element_text(size=10, face = "bold"),
-                plot.title = element_text(size = 15, hjust = 0.5),
-              #  text = element_text(family="Times New Roman"),
-                axis.text.x = element_text(colour="black"),
-                axis.text.y = element_text(colour="black"))
-
+p1
 #plot and save
 #png("figs/knn_learning_curve.png", width=8.0, height = 4.0, units = "in", res=800)
-suppressWarnings(multiplot(p1, p2, cols=2))
 #dev.off()
 results
