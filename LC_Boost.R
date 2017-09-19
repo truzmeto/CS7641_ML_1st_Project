@@ -22,33 +22,18 @@ training <- sub_data[indx, ]
 testing <- sub_data[-indx, ] 
 
 # prepare 30% of training as for cross validation to evaluate training error
-validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.3, list=FALSE), ]
+validation <- training[createDataPartition(y= training$loan_status, p = 0.3, list=FALSE), ]
 
 
 
 ##############################################################################################
 ##--------------------------------- Experiment 1 -------------------------------------------##
-
-#model_boost <- train(factor(loan_status) ~
-#                    int_rate+grade+issue_year+revol_util+term+dti,
-#                    method='ada',
-#                    data = training,
-#                    verbose=FALSE)
-
-
-#print(model_boost)
-#summary(model_boost)
-
-## making a prediction
-#prediction_boost <- predict(model_boost, testing, type = "raw")
-#confusionMatrix(prediction_boost, testing$loan_status)$overall[1]
-
-
+## Cross validation
 ## Stochastic grad boosting
 
-gbmGrid <-  expand.grid(interaction.depth = c(2, 3, 4, 5), 
-                        n.trees = (5:40)*2,
-                        shrinkage = c(0.1,0.15,0.2),
+gbmGrid <-  expand.grid(interaction.depth = c(3, 5, 7, 9), 
+                        n.trees = (5:50)*2,
+                        shrinkage = c(0.1,0.15,0.2,0.25),
                         n.minobsinnode = 20)
 
 fitControl <- trainControl(method = "repeatedcv", number = 10, repeats = 4)
@@ -59,15 +44,22 @@ gbmFit <- train(factor(loan_status) ~ ., data = training,
                  method = "gbm", 
                  trControl = fitControl, 
                  verbose = FALSE, 
-                 ## Now specify the exact models 
-                 ## to evaluate:
                  tuneGrid = gbmGrid)
 gbmFit
 
 #plot and save
-#pdf("figs/boost_acc_iter_shrink.pdf")
+pdf("figs/boost_acc_iter_shrink.pdf")
 plot(gbmFit)
-#dev.off()
+dev.off()
+
+## making a prediction
+prediction_boost_test <- predict(gbmFit, testing, type = "raw")
+confusionMatrix(prediction_boost_test, testing$loan_status)$overall[1]
+
+#prediction_boost_train <- predict(gbmFit, validation, type = "raw")
+#confusionMatrix(prediction_boost_train, validation$loan_status) 
+
+
 
 
 
