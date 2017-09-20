@@ -20,10 +20,17 @@ data$emp_length <- as.numeric(str_extract(data$emp_length,"[[:digit:]]+"))
 data$earliest_cr_line <- as.numeric(str_extract(data$earliest_cr_line,"[[:digit:]]+"))
 data$term <- as.numeric(str_extract(data$term,"[[:digit:]]+"))
 data$issue_year <- as.integer(str_extract(data$issue_d,"[[:digit:]]+"))
+
+data$credit_length_year <- data$issue_year - data$earliest_cr_line
+
 # delete columns
 data$issue_d <- NULL
 data$sub_grade <- NULL
+data$earliest_cr_line <- NULL
+data$issue_year <- NULL
 
+# clean verification column
+data[data$verification_status == "Source Verified",]$verification_status <- "Verified"
 
 ### Keeping columns with less than 50% missing values
 NA_cols <- round(colSums(is.na(data))/nrow(data) *100,2)
@@ -34,6 +41,11 @@ data <- data[, keep_colnames]
 
 # get rid of rows with loan_status "current", because it is not clear which class it belongs to!
 data <- data[!(data$loan_status %in% "Current"), ]
+
+# rm rows where home_ownership is c(any,other,none)
+data <- data[!(data$home_ownership %in% c("ANY","OTHER","NONE")), ]
+
+
 
 # plitting loan_status into two classes, "paid" > 1, "unpaid" > 0
 data$loan_status <- ifelse(data$loan_status == "Fully Paid" |
