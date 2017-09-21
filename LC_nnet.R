@@ -37,21 +37,20 @@ fitControl <- trainControl(method = "repeatedcv",
                            classProbs = TRUE, 
                            summaryFunction = twoClassSummary)
 
-nnetGrid <- expand.grid(size = seq(from = 2, to = 10, by = 1),
-                         decay = seq(from = 0.01, to = 0.06, by = 0.02))
+nnetGrid <- expand.grid(size = seq(from = 2, to = 8, by = 1),
+                         decay = seq(from = 0.02, to = 0.08, by = 0.02))
 
 nnetFit <- train(factor(loan_status) ~ .,
                  data = training,
                  method = "nnet",
                  metric = "ROC",
                  trControl = fitControl,
+                 preProcess = c("center","scale"),
                  tuneGrid = nnetGrid,
                  verbose = FALSE)
 
 prediction_nnet <- predict(nnetFit, newdata=testing, type = "raw")
 con_mat_nnet <- confusionMatrix(prediction_nnet, testing$loan_status)
-#con_mat_nnet$overall[1]
-
 
 #plot and save
 pdf("figs/LC_nnet_ROC_units_weight.pdf")
@@ -59,5 +58,6 @@ plot(nnetFit)
 dev.off()
 
 write.table(con_mat_nnet$table, file = "output/LC_confusion_mat_nnet.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+#write.table(nnetFit, file = "output/LC_nnet_fitInfo.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
