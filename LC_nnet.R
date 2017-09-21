@@ -37,7 +37,7 @@ fitControl <- trainControl(method = "repeatedcv",
                            classProbs = TRUE, 
                            summaryFunction = twoClassSummary)
 
-nnetGrid <- expand.grid(size = seq(from = 5, to = 15, by = 1),
+nnetGrid <- expand.grid(size = seq(from = 2, to = 10, by = 1),
                          decay = seq(from = 0.1, to = 0.5, by = 0.1))
 
 nnetFit <- train(factor(loan_status) ~ .,
@@ -51,4 +51,7 @@ nnetFit <- train(factor(loan_status) ~ .,
 prediction_nnet <- predict(nnetFit, newdata=testing, type = "raw")
 con_mat_nnet <- confusionMatrix(prediction_nnet, testing$loan_status)
 con_mat_nnet$overall[1]
+
 plot(nnetFit)
+
+
