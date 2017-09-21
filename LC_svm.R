@@ -52,7 +52,6 @@ plot(model_svm)
 dev.off()
 
 
-
 ##-------------------------------- Experiment 3 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected

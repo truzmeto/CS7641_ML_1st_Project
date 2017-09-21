@@ -5,7 +5,6 @@ library("ggplot2")
 library("lattice") 
 library("caret")
 library("plyr")
-library("rpart")
 
 ## setting seed for random number generator
 set.seed(300)
@@ -41,7 +40,6 @@ gbmFit <- train(factor(loan_status) ~ ., data = training,
                  trControl = fitControl, 
                  verbose = FALSE, 
                  tuneGrid = gbmGrid)
-gbmFit
 
 #plot and save
 pdf("figs/LC_boost_acc_iter_shrink.pdf")
@@ -54,7 +52,6 @@ con_mat <- confusionMatrix(prediction_boost_test, testing$loan_status)
 
 #prediction_boost_train <- predict(gbmFit, validation, type = "raw")
 #confusionMatrix(prediction_boost_train, validation$loan_status) 
-
 write.table(con_mat$table, file = "output/LC_confusion_mat_boost.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
@@ -86,8 +83,7 @@ for (i in 1:N_iter) {
   validation1 <- training[createDataPartition(y = training1$loan_status, p = 0.3, list = FALSE), ]
   
 
-  start_time <- Sys.time() #start the clock
-  
+  start_time <- Sys.time() #start the clock--------------------------------------------------------
   ## building a model with trees
   gbmGrid <-  expand.grid(interaction.depth = 9, 
                           n.trees = 54,
@@ -102,7 +98,8 @@ for (i in 1:N_iter) {
                   trControl = fitControl, 
                   verbose = FALSE, 
                   tuneGrid = gbmGrid)
-  gbmFit1
+  end_time <- Sys.time() # end the clock-------------------------------------------------------------
+  
   
   ## making a prediction
   prediction_boost_test <- predict(gbmFit1, testing, type = "raw")
@@ -111,7 +108,6 @@ for (i in 1:N_iter) {
   prediction_boost_train <- predict(gbmFit1, validation1, type = "raw")
   con_mat_train <- confusionMatrix(prediction_boost_train, validation1$loan_status)
   
-  end_time <- Sys.time() # end the clock
   
   cpu_time[i] <- round(as.numeric(end_time - start_time),3)
   data_size[i] <- nrow(training1)
