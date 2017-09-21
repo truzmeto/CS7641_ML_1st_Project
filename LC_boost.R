@@ -15,7 +15,7 @@ set.seed(300)
 data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
 
 ## extract 10% of data and perfor hyperparameter tuning 
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.05, list=FALSE),]
+sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
 
 # break sub data into train test and validation sets
 indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
@@ -33,7 +33,7 @@ gbmGrid <-  expand.grid(interaction.depth = c(3, 5, 7, 9),
                         shrinkage = c(0.1,0.15,0.2,0.25),
                         n.minobsinnode = 20)
 
-fitControl <- trainControl(method = "repeatedcv", number = 10, repeats = 4)
+fitControl <- trainControl(method = "repeatedcv", number = 5, repeats = 4)
 
 
 set.seed(825)
@@ -42,6 +42,11 @@ gbmFit <- train(factor(loan_status) ~ ., data = training,
                  trControl = fitControl, 
                  verbose = FALSE, 
                  tuneGrid = gbmGrid)
+
+
+best_n_trees <- gbmFit$bestTune$n.trees
+best_int_depth <- gbmFit$bestTune$interaction.depth
+best_shrink <- gbmFit$bestTune$shrinkage
 
 #plot and save
 pdf("figs/LC_boost_acc_iter_shrink.pdf")
@@ -77,6 +82,14 @@ train_frac <- 0.8
 
 training1 <- training
 
+gbmGrid <-  expand.grid(interaction.depth = best_int_depth, 
+                        n.trees = best_n_trees,
+                        shrinkage = best_shrink,
+                        n.minobsinnode = 20)
+
+fitControl <- trainControl(method = "none")
+
+
 for (i in 1:N_iter) { 
   
 
@@ -87,14 +100,6 @@ for (i in 1:N_iter) {
 
   start_time <- Sys.time() #start the clock--------------------------------------------------------
   ## building a model with trees
-  gbmGrid <-  expand.grid(interaction.depth = 9, 
-                          n.trees = 54,
-                          shrinkage = 0.1,
-                          n.minobsinnode = 20)
-  
-  #fitControl <- trainControl(method = "repeatedcv", number = 2, repeats = 1)
-  fitControl <- trainControl(method = "none")
-  
   gbmFit1 <- train(factor(loan_status) ~ ., data = training1, 
                   method = "gbm", 
                   trControl = fitControl, 
