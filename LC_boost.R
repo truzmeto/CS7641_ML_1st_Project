@@ -44,7 +44,7 @@ gbmFit <- train(factor(loan_status) ~ ., data = training,
 gbmFit
 
 #plot and save
-pdf("figs/boost_acc_iter_shrink.pdf")
+pdf("figs/LC_boost_acc_iter_shrink.pdf")
 plot(gbmFit)
 dev.off()
 
@@ -55,7 +55,7 @@ con_mat <- confusionMatrix(prediction_boost_test, testing$loan_status)
 #prediction_boost_train <- predict(gbmFit, validation, type = "raw")
 #confusionMatrix(prediction_boost_train, validation$loan_status) 
 
-write.table(con_mat$table, file = "output/confusion_mat_boost.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(con_mat$table, file = "output/LC_confusion_mat_boost.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 ##-------------------------------- Experiment 2 -------------------------------
@@ -143,7 +143,7 @@ pl <- ggplot(results, aes(x=data_size)) +
         axis.text.y = element_text(colour="black"))
 
 #plot and save
-png("figs/boosting_learning_curve.png", width = 5.0, height = 4.0, units = "in", res = 800)
+png("figs/LC_boosting_learning_curve.png", width = 5.0, height = 4.0, units = "in", res = 800)
 pl
 dev.off()
 

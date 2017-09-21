@@ -45,7 +45,7 @@ con_mat_train <- confusionMatrix(prediction_train, validation$loan_status)
 con_mat_train$overall
 
 ## plot xerror vs complexity parameter for original tree
-png("figs/tree_cp_xerror_LC.png", width = 4.0, height = 4.0, units = "in", res = 800)
+png("figs/LC_tree_cp_xerror.png", width = 4.0, height = 4.0, units = "in", res = 800)
 plotcp(model_trees)
 dev.off()
 
@@ -79,6 +79,9 @@ results_tree <- data.frame(rbind(con_mat_test$overall,
                          row.names = c("ori_test","ori_train","pruned_test","pruned_train"))
 
 write.table(results_tree, file = "output/LC_tree_pre_post_pruning_results.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+
+## output confusion matrix
+write.table(con_mat_pruned_test$table, file = "output/LC_confusion_mat_tree.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 

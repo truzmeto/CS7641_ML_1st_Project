@@ -29,7 +29,7 @@ testing <- sub_data[-indx, ]
 TrainCtrl <- trainControl(method = "cv", number = 10, verbose = FALSE)
 
 set.seed(300) 
-SVMgrid <- expand.grid(sigma = c(0.03,0.033,0.035,0.037), C = (1:10)*0.1 + 1.0)
+SVMgrid <- expand.grid(sigma = c(0.03,0.033,0.035), C = (1:10)*0.1 + 1.0)
 
 model_svm <- train(factor(loan_status) ~ .,
                      data = training, 
@@ -44,10 +44,10 @@ prediction_svm <- predict(model_svm, testing)
 con_mat <- confusionMatrix(prediction_svm, testing$loan_status)
 
 ## output confusion matrix
-write.table(con_mat$table, file = "output/confusion_mat_svm.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(con_mat$table, file = "output/LC_confusion_mat_svm.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 #plot and save
-pdf("figs/svm_acc_cost_sigma.pdf")
+pdf("figs/LC_svm_acc_cost_sigma.pdf")
 plot(model_svm)
 dev.off()
 
@@ -132,7 +132,7 @@ pl <- ggplot(results, aes(x=data_size)) +
         axis.text.y = element_text(colour="black"))
 
 #plot and save
-png("figs/svm_learning_curve.png", width = 5.0, height = 4.0, units = "in", res = 800)
+png("figs/LC_svm_learning_curve.png", width = 5.0, height = 4.0, units = "in", res = 800)
 pl
 dev.off()
 

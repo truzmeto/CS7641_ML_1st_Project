@@ -69,7 +69,7 @@ con_mat<- confusionMatrix(prediction_knn, testing$loan_status)
 
 ## output confusion matrix
 write.table(con_mat$table, file = "output/LC_confusion_mat_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
-write.table(con_mat$table, file = "output/LC_Fit_Info_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(knnFit, file = "output/LC_Fit_Info_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 ##----------------------------------------- Experiment 2 ------------------------------------------##
@@ -157,6 +157,6 @@ pl <- ggplot(results, aes(x=data_size)) +
               axis.text.y = element_text(colour="black"))
 
 #plot and save
-png("figs/knn_learning_curve.png", width=8.0, height = 4.0, units = "in", res=800)
+png("figs/LC_knn_learning_curve.png", width=8.0, height = 4.0, units = "in", res=800)
 pl
 dev.off()
