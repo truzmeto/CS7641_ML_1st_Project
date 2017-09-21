@@ -32,10 +32,10 @@ data <- FacToString(data)
 data$loan_status <- as.factor(data$loan_status)
 
 ##-------------------------------- Experiment 1 -------------------------------------## 
-# Find optimum k value, which correspond to highest accuracy
+## Find optimum k value, which correspond to highest accuracy
 
 ## extract some % of data and perfor hyperparameter tuning with 5 fold cross validation
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
+sub_data <- data[createDataPartition(y=data$loan_status, p = 0.01, list=FALSE),]
 
 # break sub data into train and test sets
 indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
@@ -57,8 +57,8 @@ knnFit <- train(loan_status ~ .,
                 preProcess = c("center","scale"),
                 tuneLength = 20)
 
-#Output of kNN fit
-knnFit
+
+best_k <- as.numeric(knnFit$bestTune[1])
 
 #plot and save
 pdf("figs/knn_acc_naigh.pdf")
@@ -71,7 +71,7 @@ con_mat<- confusionMatrix(prediction_knn, testing$loan_status)
 
 ## output confusion matrix
 write.table(con_mat$table, file = "output/LC_confusion_mat_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
-write.table(knnFit, file = "output/LC_Fit_Info_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(knnFit$bestTune, file = "output/LC_bestTune_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 ##----------------------------------------- Experiment 2 ------------------------------------------##
@@ -89,7 +89,6 @@ train_accur <- 0
 train_kap <- 0
 
 cpu_time <- 0
-best_k <- 0
 data_size <- 0
 
 set.seed(500)   #|> setting random seed
@@ -97,8 +96,8 @@ train_frac <- 0.8
 
 training1 <- training
 
-ctrl <- trainControl(method = "cv")
-grid <-  expand.grid(k = 41)
+ctrl <- trainControl(method = "none")#"cv")
+grid <-  expand.grid(k = best_k)
 
 for (i in 1:N_iter) { 
     
@@ -113,7 +112,7 @@ for (i in 1:N_iter) {
                     trControl = ctrl,
                     preProcess = c("center","scale"),
                     #tuneLength = 2,
-                    tuneGrid=grid)
+                    tuneGrid = grid)
     
     end_time <- Sys.time() # end the clock-----------------------------------------------------------------
 
