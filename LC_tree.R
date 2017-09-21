@@ -14,10 +14,10 @@ set.seed(300)
 data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
 
 ## extract 10% of data and perfor hyperparameter tuning 
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
+sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list = FALSE),]
 
 ## break sub data into train test and validation sets
-indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
+indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list = FALSE)
 training <- sub_data[indx, ]
 testing <- sub_data[-indx, ] 
 validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.3, list=FALSE), ]
@@ -79,7 +79,6 @@ results_tree <- data.frame(rbind(con_mat_test$overall,
                          row.names = c("ori_test","ori_train","pruned_test","pruned_train"))
 
 write.table(results_tree, file = "output/LC_tree_pre_post_pruning_results.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
-
 
 
 
