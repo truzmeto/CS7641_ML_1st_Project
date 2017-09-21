@@ -35,7 +35,7 @@ data$loan_status <- as.factor(data$loan_status)
 ## Find optimum k value, which correspond to highest accuracy
 
 ## extract some % of data and perfor hyperparameter tuning with 5 fold cross validation
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.01, list=FALSE),]
+sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
 
 # break sub data into train and test sets
 indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
@@ -96,7 +96,7 @@ train_frac <- 0.8
 
 training1 <- training
 
-ctrl <- trainControl(method = "none")#"cv")
+ctrl <- trainControl(method = "none")
 grid <-  expand.grid(k = best_k)
 
 for (i in 1:N_iter) { 
@@ -111,7 +111,6 @@ for (i in 1:N_iter) {
                     method = "knn",
                     trControl = ctrl,
                     preProcess = c("center","scale"),
-                    #tuneLength = 2,
                     tuneGrid = grid)
     
     end_time <- Sys.time() # end the clock-----------------------------------------------------------------
