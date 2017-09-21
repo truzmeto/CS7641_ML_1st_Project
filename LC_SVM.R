@@ -26,7 +26,7 @@ testing <- sub_data[-indx, ]
 ## Support Vector Machines
 ## Fit SVM model
 ##TrainCtrl <- trainControl(method = "repeatedcv", number = 5,repeats=0,verbose = FALSE)
-TrainCtrl <- trainControl(method = "cv", number = 10,verbose = FALSE)
+TrainCtrl <- trainControl(method = "cv", number = 10, verbose = FALSE)
 
 set.seed(300) 
 SVMgrid <- expand.grid(sigma = c(0.03,0.033,0.035,0.037), C = (1:10)*0.1 + 1.0)
@@ -53,7 +53,7 @@ dev.off()
 
 
 
-##-------------------------------- Experiment 2 -------------------------------
+##-------------------------------- Experiment 3 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
 
@@ -78,7 +78,6 @@ SVMgrid <- expand.grid(sigma = c(0.033), C = 1.5)
 
 
 for (i in 1:N_iter) { 
-  
   
   new_train <- training1 
   training1 <- new_train[createDataPartition(y = new_train$loan_status, p = 0.8, list = FALSE),]
@@ -116,6 +115,7 @@ for (i in 1:N_iter) {
 }
 
 results <- data.frame(test_accur,test_kap,train_accur,train_kap, cpu_time, data_size)
+write.table(results, file = "output/LC_learning_results_svm.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 ## plot some results
