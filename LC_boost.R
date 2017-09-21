@@ -113,14 +113,13 @@ for (i in 1:N_iter) {
   
   end_time <- Sys.time() # end the clock
   
-  cpu_time[i] <- as.numeric(end_time - start_time)
+  cpu_time[i] <- round(as.numeric(end_time - start_time),3)
   data_size[i] <- nrow(training1)
+  test_accur[i] <- round(as.numeric(con_mat_test$overall[1]),3)
+  test_kap[i] <- round(as.numeric(con_mat_test$overall[2]),3)
+  train_accur[i] <- round(as.numeric(con_mat_train$overall[1]),3)
+  train_kap[i] <- round(as.numeric(con_mat_train$overall[2]),3)
   
-  test_accur[i] <- as.numeric(con_mat_test$overall[1])
-  test_kap[i] <- as.numeric(con_mat_test$overall[2])
-  
-  train_accur[i] <- as.numeric(con_mat_train$overall[1])
-  train_kap[i] <- as.numeric(con_mat_train$overall[2])
 }
 
 results <- data.frame(test_accur,test_kap,train_accur,train_kap, cpu_time, data_size)
