@@ -14,9 +14,9 @@ set.seed(300)
 data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
 
 ## extract 10% of data and perfor hyperparameter tuning 
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.2, list=FALSE),]
+sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
 
-# break sub data into train test and validation sets
+## break sub data into train test and validation sets
 indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
 training <- sub_data[indx, ]
 testing <- sub_data[-indx, ] 
@@ -25,52 +25,61 @@ validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.3, list
 
 ##############################################################################################
 ##--------------------------------- Experiment 1 -------------------------------------------##
-# Cross Validate
-# Grow the tree. Apply post prunning to avoid overfitting
+## Cross Validate
+## Grow the tree. Apply post prunning to avoid overfitting
 
 ## building a model with trees
 model_trees <- rpart(factor(loan_status) ~. , data = training,
                      method="class",
-                     #control = ("maxdepth = 20"),
                      parms = list(split = "information"), #, prior = c(.55,.45))
-                     control=rpart.control(minsplit=4, minbucket = 2, cp=0.0002))
+                     control=rpart.control(minsplit = 5, cp = 0.0002)) 
 
-# predict on test set
+## predict on test set
 prediction_test <- predict(model_trees, testing, type = "class")
 con_mat_test <- confusionMatrix(prediction_test, testing$loan_status)
 con_mat_test$overall
 
-# predict on train sub set(validation)
+## predict on train sub set(validation)
 prediction_train <- predict(model_trees, validation, type = "class")
 con_mat_train <- confusionMatrix(prediction_train, validation$loan_status)
 con_mat_train$overall
 
-## apply prunning 
+## plot xerror vs complexity parameter for original tree
+png("figs/tree_cp_xerror_LC.png", width = 4.0, height = 4.0, units = "in", res = 800)
+plotcp(model_trees)
+dev.off()
+
+## apply prunning using optimum values for "cp" and "nsplit" 
 cp <- model_trees$cptable[which.min(model_trees$cptable[,"xerror"]),"CP"]
 pruned_tree <- prune(model_trees, cp = cp)
 
-## plotting pruned tree
+#results_tree <- rbind(con_mat_test)
+
+## plotting pruned tree diagram
+library(rpart.plot)
+png("figs/LC_pruned_tree_diag.png", width = 6.0, height = 4.0, units = "in", res = 800)
 rpart.plot(pruned_tree, fallen.leaves = FALSE, cex = 0.3, tweak = 2,
            shadow.col = "gray", sub = "Pruned Tree Diagram")
+dev.off()
 
 # predictiong with pruned tree on test set
 prediction_pruned_test <- predict(pruned_tree, testing, type = "class")
 con_mat_pruned_test <- confusionMatrix(prediction_pruned_test, testing$loan_status)
-con_mat_pruned_test$overall
 
-# predicting with pruned tree on train sub set
+# predicting with pruned tree on validation set
 prediction_pruned_train <- predict(pruned_tree, validation, type = "class")
 con_mat_pruned_train <- confusionMatrix(prediction_pruned_train, validation$loan_status)
 con_mat_pruned_train$overall
 
-plotcp(pruned_tree)
-results1 <- data.frame(rbind(con_mat_test$overall, 
-                             con_mat_train$overall,
-                             con_mat_pruned_test$overall,
-                             con_mat_pruned_train$overall),
-                       row.names = c("test","train","pru_test","pru_train"))
+## summarize all pre and post pruning results via accuracy .......
+results_tree <- data.frame(rbind(con_mat_test$overall, 
+                               con_mat_train$overall,
+                               con_mat_pruned_test$overall,
+                               con_mat_pruned_train$overall),
+                         row.names = c("ori_test","ori_train","pruned_test","pruned_train"))
 
-results1[,c("Accuracy","Kappa")]
+write.table(results_tree, file = "output/LC_tree_pre_post_pruning_results.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+
 
 
 
@@ -99,21 +108,19 @@ for (i in 1:N_iter) {
   new_train <- training1 
   training1 <- new_train[createDataPartition(y=new_train$loan_status, p = train_frac, list=FALSE),]
 
-  start_time <- Sys.time() #start the clock
-  
+  start_time <- Sys.time() #start the clock---------------------------------------------------------
   ## building a model with trees
   model_trees <- rpart(factor(loan_status) ~. , data = training1,
                        method="class",
                        #control = ("maxdepth = 20"),
                        parms = list(split = "information"), #, prior = c(.55,.45))
-                       control=rpart.control(minsplit=4, minbucket = 2, cp=0.0002))
+                       control=rpart.control(minsplit = 5, cp = 0.0002))
   
   ## apply prunning 
   cp <- model_trees$cptable[which.min(model_trees$cptable[,"xerror"]),"CP"]
-  pruned_tree <- prune(model_trees, cp = cp)
-  
-  end_time <- Sys.time() # end the clock
-  
+  pruned_tree <- prune(model_trees, cp = cp) 
+  end_time <- Sys.time() # end the clock ---------------------------------------------------------
+
   
   # predictiong with pruned tree on test set
   prediction_pruned_test <- predict(pruned_tree, testing, type = "class")
@@ -126,21 +133,21 @@ for (i in 1:N_iter) {
   con_mat_pruned_train <- confusionMatrix(prediction_pruned_train, validation1$loan_status)
   con_mat_pruned_train$overall
   
-  
+  ## save all size dependent variables  
   cpu_time[i] <- as.numeric(end_time - start_time)
   data_size[i] <- nrow(training1)
-  
   test_accur[i] <- as.numeric(con_mat_pruned_test$overall[1])
   test_kap[i] <- as.numeric(con_mat_pruned_test$overall[2])
-  
   train_accur[i] <- as.numeric(con_mat_pruned_train$overall[1])
   train_kap[i] <- as.numeric(con_mat_pruned_train$overall[2])
 }
 
 results <- data.frame(test_accur,test_kap,train_accur,train_kap, cpu_time, data_size)
+write.table(results, file = "output/LC_learning_results_tree.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+
 
 #plot some results
-p <- ggplot(results, aes(x=data_size)) +
+pl <- ggplot(results, aes(x=data_size)) +
       geom_line(aes(y = train_accur, colour = "train")) + 
       geom_line(aes(y = test_accur, colour = "test")) +
       geom_point(aes(y = train_accur,colour = "train")) + 
@@ -157,6 +164,6 @@ p <- ggplot(results, aes(x=data_size)) +
             axis.text.x = element_text(colour="black"),
             axis.text.y = element_text(colour="black"))
 
-png("figs/tree_learning_curve_LC.png", width=6.0, height = 4.0, units = "in", res=800)
-p
+png("figs/LC_tree_learning_curve.png", width=5.0, height = 4.0, units = "in", res=800)
+pl
 dev.off()

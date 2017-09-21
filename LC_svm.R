@@ -15,7 +15,7 @@ set.seed(300)
 data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
      	
 ## extract some part of data and performe hyperparameter tuning 
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.05, list=FALSE),]
+sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
 
 ## break sub data into train test and validation sets
 indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
@@ -57,7 +57,7 @@ dev.off()
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
 
-N_iter <- 20  #|> number of iterations for learning curve
+N_iter <- 10  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0
@@ -73,6 +73,8 @@ train_frac <- 0.8
 
 training1 <- training
 
+TrainCtrl <- trainControl(method = "cv")
+SVMgrid <- expand.grid(sigma = c(0.033), C = 1.5)
 
 
 for (i in 1:N_iter) { 
@@ -81,12 +83,7 @@ for (i in 1:N_iter) {
   training1 <- new_train[createDataPartition(y = new_train$loan_status, p = 0.8, list = FALSE),]
   validation1 <- training[createDataPartition(y = training1$loan_status, p = 0.3, list = FALSE), ]
   
-
-  #TrainCtrl <- trainControl(method = "cv")
-  TrainCtrl <- trainControl(method = "none")
-  SVMgrid <- expand.grid(sigma = 0.033, C = 1.5)
   
-    
   start_time <- Sys.time() ## start the clock------------------------------------------------------
   svmFit <- train(factor(loan_status) ~ .,
                      data = training, 

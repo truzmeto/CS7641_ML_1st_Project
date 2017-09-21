@@ -67,9 +67,9 @@ dev.off()
 prediction_knn <- predict(knnFit, newdata = testing)
 con_mat<- confusionMatrix(prediction_knn, testing$loan_status)
 
-#print confusion matrix table
-con_mat$table
-
+## output confusion matrix
+write.table(con_mat$table, file = "output/LC_confusion_mat_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(con_mat$table, file = "output/LC_Fit_Info_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 ##----------------------------------------- Experiment 2 ------------------------------------------##
@@ -96,11 +96,7 @@ train_frac <- 0.8
 training1 <- training
 
 ctrl <- trainControl( method = "cv")
-    # method = "repeatedcv",
-    #repeats = 2)#,summaryFunction = twoClassSummary)
-
 grid <-  expand.grid(k = 41)
-
 
 for (i in 1:N_iter) { 
     
@@ -108,9 +104,7 @@ for (i in 1:N_iter) {
     training1 <- new_train[createDataPartition(y=new_train$loan_status, p = train_frac, list=FALSE),]
     
     ## apply KNN algorithm
-    
-    
-    start_time <- Sys.time() #start the clock
+    start_time <- Sys.time() #start the clock--------------------------------------------------------------
     knnFit <- train(loan_status ~ .,
                     data = training1,
                     method = "knn",
@@ -119,14 +113,15 @@ for (i in 1:N_iter) {
                     #tuneLength = 2,
                     tuneGrid=grid)
     
-    end_time <- Sys.time() # end the clock
+    end_time <- Sys.time() # end the clock-----------------------------------------------------------------
+
     cpu_time[i] <- as.numeric(end_time - start_time)
     
-    # predict with knn on test set
+    ## predict with knn on test set
     prediction_knn_test <- predict(knnFit, newdata = testing)
     con_mat_test <- confusionMatrix(prediction_knn_test, testing$loan_status)
     
-    # predict with knn on validation set
+    ## predict with knn on validation set
     validation <- training1[createDataPartition(y=training1$loan_status, p = 0.3, list=FALSE),]
     prediction_knn_train <- predict(knnFit, newdata = validation)
     con_mat_train <- confusionMatrix(prediction_knn_train, validation$loan_status)
@@ -134,22 +129,19 @@ for (i in 1:N_iter) {
     best_k[i] <-  as.numeric(knnFit$bestTune[1])
     data_size[i] <- nrow(training1)
     
-    #test_err[i] <-  1 - as.numeric(con_mat_test$overall[1])
     test_accur[i] <- as.numeric(con_mat_test$overall[1])
     test_kap[i] <- as.numeric(con_mat_test$overall[2])
     
-    #train_err[i] <-  1 - as.numeric(con_mat_train$overall[1])
     train_accur[i] <- as.numeric(con_mat_train$overall[1])
     train_kap[i] <- as.numeric(con_mat_train$overall[2])
 }
 
-results <- data.frame(test_accur,test_kap,train_accur,train_kap,cpu_time, best_k, data_size)
+results <- data.frame(test_accur, test_kap, train_accur, train_kap, cpu_time, data_size)
+write.table(results, file = "output/LC_learning_results_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 #plot some results
-#library(extrafont)
-
-p1 <- ggplot(results, aes(x=data_size)) +
+pl <- ggplot(results, aes(x=data_size)) +
           geom_line(aes(y = train_accur, colour = "train")) + 
           geom_line(aes(y = test_accur, colour = "test")) +
           geom_point(aes(y = train_accur,colour = "train")) + 
@@ -167,8 +159,7 @@ p1 <- ggplot(results, aes(x=data_size)) +
               axis.text.x = element_text(colour="black"),
               axis.text.y = element_text(colour="black"))
 
-p1
 #plot and save
-#png("figs/knn_learning_curve.png", width=8.0, height = 4.0, units = "in", res=800)
-#dev.off()
-results
+png("figs/knn_learning_curve.png", width=8.0, height = 4.0, units = "in", res=800)
+pl
+dev.off()
