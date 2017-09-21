@@ -133,16 +133,16 @@ for (i in 1:N_iter) {
   con_mat_pruned_train$overall
   
   ## save all size dependent variables  
-  cpu_time[i] <- as.numeric(end_time - start_time)
+  cpu_time[i] <- round(as.numeric(end_time - start_time),3)
   data_size[i] <- nrow(training1)
-  test_accur[i] <- as.numeric(con_mat_pruned_test$overall[1])
-  test_kap[i] <- as.numeric(con_mat_pruned_test$overall[2])
-  train_accur[i] <- as.numeric(con_mat_pruned_train$overall[1])
-  train_kap[i] <- as.numeric(con_mat_pruned_train$overall[2])
+  test_accur[i] <- round(as.numeric(con_mat_pruned_test$overall[1]),3)
+  test_kap[i] <- round(as.numeric(con_mat_pruned_test$overall[2]),3)
+  train_accur[i] <- round(as.numeric(con_mat_pruned_train$overall[1]),3)
+  train_kap[i] <- round(as.numeric(con_mat_pruned_train$overall[2]),3)
 }
 
 results <- data.frame(test_accur,test_kap,train_accur,train_kap, cpu_time, data_size)
-write.table(results, file = "output/LC_learning_results_tree.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(results, file = "output/LC_learning_results_tree.txt", row.names = TRUE, col.names = TRUE, sep = "       ")
 
 
 #plot some results
