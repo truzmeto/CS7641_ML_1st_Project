@@ -157,6 +157,6 @@ pl <- ggplot(results, aes(x=data_size)) +
               axis.text.y = element_text(colour="black"))
 
 #plot and save
-png("figs/LC_knn_learning_curve.png", width=8.0, height = 4.0, units = "in", res=800)
+png("figs/LC_knn_learning_curve.png", width=5.0, height = 4.0, units = "in", res=800)
 pl
 dev.off()
