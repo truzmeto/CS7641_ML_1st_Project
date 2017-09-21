@@ -5,6 +5,8 @@ library("ggplot2")
 library("lattice") 
 library("caret")
 library("plyr")
+library(doMC)
+registerDoMC(cores = 4)
 
 ## setting seed for random number generator
 set.seed(300)
