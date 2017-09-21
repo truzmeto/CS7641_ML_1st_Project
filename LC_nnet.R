@@ -70,7 +70,7 @@ write.table(con_mat_nnet$overall, file = "output/LC_nnet_accuracy.txt", row.name
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
 
-N_iter <- 10  #|> number of iterations for learning curve
+N_iter <- 20  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0
@@ -135,6 +135,24 @@ for (i in 1:N_iter) {
 
 results <- data.frame(test_accur,test_kap,train_accur,train_kap, cpu_time, data_size)
 write.table(results, file = "output/LC_learning_results_nnet.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+
+
+
+#plot some results
+pl <- ggplot(results, aes(x=data_size)) +
+  geom_line(aes(y = train_accur, colour = "train")) + 
+  geom_line(aes(y = test_accur, colour = "test")) +
+  geom_point(aes(y = train_accur,colour = "train")) + 
+  geom_point(aes(y = test_accur,colour = "test")) +
+  theme_bw() +
+  labs(title = "Learning Curve Boosting", x = "Training Size", y = "Accuracy", color="") +
+  theme(legend.position = c(0.6,0.8),
+        axis.title = element_text(size = 16.0),
+        axis.text = element_text(size=10, face = "bold"),
+        plot.title = element_text(size = 15, hjust = 0.5),
+        #text = element_text(family="Times New Roman"),
+        axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"))
 
 
 #plot some results
