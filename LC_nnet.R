@@ -145,7 +145,7 @@ pl <- ggplot(results, aes(x=data_size)) +
   geom_point(aes(y = train_accur,colour = "train")) + 
   geom_point(aes(y = test_accur,colour = "test")) +
   theme_bw() +
-  labs(title = "Learning Curve Boosting", x = "Training Size", y = "Accuracy", color="") +
+  labs(title = "Learning Curve NNet", x = "Training Size", y = "Accuracy", color="") +
   theme(legend.position = c(0.6,0.8),
         axis.title = element_text(size = 16.0),
         axis.text = element_text(size=10, face = "bold"),

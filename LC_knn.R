@@ -97,7 +97,7 @@ train_frac <- 0.8
 
 training1 <- training
 
-ctrl <- trainControl( method = "cv")
+ctrl <- trainControl(method = "cv")
 grid <-  expand.grid(k = 41)
 
 for (i in 1:N_iter) { 
