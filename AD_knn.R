@@ -38,7 +38,7 @@ ctrl <- trainControl(method = "repeatedcv",
                      number = 5,
                      repeats = 2)
 
-knnFit <- train(as.factor(income) ~ .,
+knnFit <- train(income ~ .,
                 data = training,
                 method = "knn",
                 trControl = ctrl,
@@ -90,7 +90,7 @@ for (i in 1:N_iter) {
   
   ## apply KNN algorithm
   start_time <- Sys.time() #start the clock--------------------------------------------------------------
-  knnFit <- train(as.factor(income) ~ .,
+  knnFit <- train(income ~ .,
                   data = training1,
                   method = "knn",
                   trControl = ctrl,
