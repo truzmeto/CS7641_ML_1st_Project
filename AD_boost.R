@@ -13,14 +13,20 @@ training <- read.table("clean_data/adult_train.txt", sep = "", header = TRUE)
 testing <- read.table("clean_data/adult_test.txt", sep = "", header = TRUE)
 
 
+## temp sub data for debugging --------------------------------------------------------------
+sub_data <- training[createDataPartition(y=training$income, p = 0.1, list=FALSE),]
+training <- sub_data
+##--------------------------------------------------------------------------------------------
+
+
 ##############################################################################################
 ##--------------------------------- Experiment 1 -------------------------------------------##
 ## Cross validation
 ## Stochastic grad boosting
 
-gbmGrid <-  expand.grid(interaction.depth = c(3, 5, 7, 9), 
-                        n.trees = (5:50)*2,
-                        shrinkage = c(0.1,0.15,0.2,0.25),
+gbmGrid <-  expand.grid(shrinkage = c(0.05,0.1,0.15),
+                        interaction.depth = c(2,3,4,5), 
+                        n.trees = (5:40)*2,
                         n.minobsinnode = 20)
 
 fitControl <- trainControl(method = "repeatedcv", number = 5, repeats = 4)
@@ -38,24 +44,24 @@ best_int_depth <- gbmFit$bestTune$interaction.depth
 best_shrink <- gbmFit$bestTune$shrinkage
 
 #plot and save
-pdf("figs/LC_boost_acc_iter_shrink.pdf")
+pdf("figs/AD_boost_acc_iter_shrink.pdf")
 plot(gbmFit)
 dev.off()
 
 ## making a prediction
 prediction_boost_test <- predict(gbmFit, testing, type = "raw")
-con_mat <- confusionMatrix(prediction_boost_test, testing$loan_status)
+con_mat <- confusionMatrix(prediction_boost_test, testing$income)
 
 #prediction_boost_train <- predict(gbmFit, validation, type = "raw")
-#confusionMatrix(prediction_boost_train, validation$loan_status) 
-write.table(con_mat$table, file = "output/LC_confusion_mat_boost.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+#confusionMatrix(prediction_boost_train, validation$income) 
+write.table(con_mat$table, file = "output/AD_confusion_mat_boost.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 ##-------------------------------- Experiment 2 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
 
-N_iter <- 10  #|> number of iterations for learning curve
+N_iter <- 15  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0
@@ -77,7 +83,6 @@ gbmGrid <-  expand.grid(interaction.depth = best_int_depth,
                         n.minobsinnode = 20)
 
 fitControl <- trainControl(method = "none")
-
 
 for (i in 1:N_iter) { 
   
@@ -115,7 +120,7 @@ for (i in 1:N_iter) {
 }
 
 results <- data.frame(test_accur,test_kap,train_accur,train_kap, cpu_time, data_size)
-write.table(results, file = "output/LC_learning_results_boost.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(results, file = "output/AD_learning_results_boost.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 #plot some results
@@ -125,8 +130,8 @@ pl <- ggplot(results, aes(x=data_size)) +
   geom_point(aes(y = train_accur,colour = "train")) + 
   geom_point(aes(y = test_accur,colour = "test")) +
   theme_bw() +
-  labs(title = "Learning Curve Boosting", x = "Training Size", y = "Accuracy", color="") +
-  theme(legend.position = c(0.6,0.8),
+  labs(title = "Learning Curve Boosting Adult Data", x = "Training Size", y = "Accuracy", color="") +
+  theme(legend.position = c(0.8,0.8),
         axis.title = element_text(size = 16.0),
         axis.text = element_text(size=10, face = "bold"),
         plot.title = element_text(size = 15, hjust = 0.5),
@@ -135,7 +140,7 @@ pl <- ggplot(results, aes(x=data_size)) +
         axis.text.y = element_text(colour="black"))
 
 #plot and save
-png("figs/LC_boosting_learning_curve.png", width = 5.0, height = 4.0, units = "in", res = 800)
+png("figs/AD_boosting_learning_curve.png", width = 5.0, height = 4.0, units = "in", res = 800)
 pl
 dev.off()
 
