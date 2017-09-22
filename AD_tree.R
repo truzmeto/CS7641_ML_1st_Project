@@ -33,7 +33,7 @@ validation <- training[createDataPartition(y=training$income, p = 0.3, list=FALS
 model_trees <- rpart(factor(income) ~. , data = training,
                      method="class",
                      parms = list(split = "information"), #, prior = c(.55,.45))
-                     control=rpart.control(minsplit = 5, cp = 0.0002)) 
+                     control=rpart.control(minsplit = 5, cp = 0)) 
 
 ## predict on test set
 prediction_test <- predict(model_trees, testing, type = "class")
