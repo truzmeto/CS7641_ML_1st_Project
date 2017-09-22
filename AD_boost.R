@@ -107,7 +107,7 @@ for (i in 1:N_iter) {
   con_mat_test <- confusionMatrix(prediction_boost_test, testing$income)
   
   prediction_boost_train <- predict(gbmFit1, validation1, type = "raw")
-  con_mat_train <- confusionMatrix(prediction_boost_train, validation1$loan_status)
+  con_mat_train <- confusionMatrix(prediction_boost_train, validation1$income)
   
   
   cpu_time[i] <- round(as.numeric(end_time - start_time),3)
