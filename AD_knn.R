@@ -27,6 +27,9 @@ FacToString <- function(input) {
 training <- FacToString(training)
 testing <- FacToString(testing)
 
+# convert "income" col. back to factor
+training$income<- as.factor(training$income)
+testing$income<- as.factor(testing$income)
 
 
 ## apply KNN algorithm
