@@ -55,6 +55,7 @@ con_mat <- confusionMatrix(prediction_boost_test, testing$income)
 #prediction_boost_train <- predict(gbmFit, validation, type = "raw")
 #confusionMatrix(prediction_boost_train, validation$income) 
 write.table(con_mat$table, file = "output/AD_confusion_mat_boost.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(gbmFit$bestTune, file = "output/AD_bestTune_boost.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 ##-------------------------------- Experiment 2 -------------------------------
