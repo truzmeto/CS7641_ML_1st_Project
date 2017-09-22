@@ -1,6 +1,6 @@
 #!/usr/bin/Rscript
   
-##loading reuired libraries
+##loading required libraries
 library("ggplot2")
 library("lattice") 
 library("caret")
@@ -17,7 +17,7 @@ set.seed(300)
 data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
      	
 ## extract some part of data and performe hyperparameter tuning 
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
+sub_data <- data[createDataPartition(y=data$loan_status, p = 0.01, list=FALSE),]
 
 ## break sub data into train test and validation sets
 indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
@@ -28,19 +28,23 @@ testing <- sub_data[-indx, ]
 ## Support Vector Machines
 ## Fit SVM model
 ##TrainCtrl <- trainControl(method = "repeatedcv", number = 5,repeats=0,verbose = FALSE)
-TrainCtrl <- trainControl(method = "cv", number = 10, verbose = FALSE)
+TrainCtrl <- trainControl(method = "cv", number = 5, verbose = FALSE)
 
 set.seed(300) 
-SVMgrid <- expand.grid(sigma = c(0.03,0.033,0.035), C = (1:10)*0.1 + 1.0)
+#SVMgrid <- expand.grid(C = (1:10)*0.2 + 0.5)#, sigma = c(0.030,0.033,0.035))
+SVMgrid <- expand.grid(C = (1:10)*0.2 + 0.5, degree = 1:2, scale = (1:2)*2 ) #, sigma = c(0.030,0.033,0.035))
+
 
 model_svm <- train(factor(loan_status) ~ .,
                      data = training, 
-                     method="svmRadial",
-                     trControl=TrainCtrl,
+                     method = 'svmPoly', #"svmLinear", #"svmRadial",
+                     trControl = TrainCtrl,
                      tuneGrid = SVMgrid,
                      preProc = c("scale","center"),
-                     verbose=FALSE)
+                     verbose = FALSE)
 
+best_sigma <- model_svm$bestTune$sigma
+best_C <- model_svm$bestTune$C
 
 prediction_svm <- predict(model_svm, testing)
 con_mat <- confusionMatrix(prediction_svm, testing$loan_status)
@@ -65,17 +69,13 @@ test_accur <- 0
 test_kap <- 0
 train_accur <- 0
 train_kap <- 0
-
 cpu_time <- 0
 data_size <- 0
-
 set.seed(500)   #|> setting random seed
-train_frac <- 0.8
-
 training1 <- training
 
-TrainCtrl <- trainControl(method = "cv")
-SVMgrid <- expand.grid(sigma = c(0.033), C = 1.5)
+TrainCtrl <- trainControl(method = "none")
+SVMgrid <- expand.grid(sigma = best_sigma, C = best_C)
 
 
 for (i in 1:N_iter) { 
@@ -87,14 +87,13 @@ for (i in 1:N_iter) {
   
   start_time <- Sys.time() ## start the clock------------------------------------------------------
   svmFit <- train(factor(loan_status) ~ .,
-                     data = training, 
-                     method="svmRadial",
-                     trControl=TrainCtrl,
+                     data = training1, 
+                     method = "svmRadial",
+                     trControl = TrainCtrl,
                      tuneGrid = SVMgrid,
                      preProc = c("scale","center"),
-                     verbose=FALSE)
+                     verbose = FALSE)
   
-  svmFit
   end_time <- Sys.time()  ## end the clock---------------------------------------------------------
   
   
