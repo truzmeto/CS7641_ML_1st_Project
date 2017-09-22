@@ -33,7 +33,7 @@ validation <- training[createDataPartition(y=training$income, p = 0.3, list=FALS
 model_trees <- rpart(factor(income) ~. , data = training,
                      method="class",
                      parms = list(split = "information"), #, prior = c(.55,.45))
-                     control=rpart.control(minsplit = 5, cp = 0.0002)) 
+                     control=rpart.control(minsplit = 5, cp = 0)) 
 
 ## predict on test set
 prediction_test <- predict(model_trees, testing, type = "class")
@@ -89,7 +89,7 @@ write.table(con_mat_pruned_test$table, file = "output/AD_confusion_mat_tree.txt"
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
 
-N_iter <- 2    #|> number of iterations for learning curve
+N_iter <- 20    #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0
