@@ -88,13 +88,13 @@ for (i in 1:N_iter) {
   
 
   new_train <- training1 
-  training1 <- new_train[createDataPartition(y = new_train$loan_status, p = 0.8, list = FALSE),]
-  validation1 <- training[createDataPartition(y = training1$loan_status, p = 0.3, list = FALSE), ]
+  training1 <- new_train[createDataPartition(y = new_train$income, p = 0.8, list = FALSE),]
+  validation1 <- training[createDataPartition(y = training1$income, p = 0.3, list = FALSE), ]
   
 
   start_time <- Sys.time() #start the clock--------------------------------------------------------
   ## building a model with trees
-  gbmFit1 <- train(factor(loan_status) ~ ., data = training1, 
+  gbmFit1 <- train(factor(income) ~ ., data = training1, 
                   method = "gbm", 
                   trControl = fitControl, 
                   verbose = FALSE, 
@@ -104,7 +104,7 @@ for (i in 1:N_iter) {
   
   ## making a prediction
   prediction_boost_test <- predict(gbmFit1, testing, type = "raw")
-  con_mat_test <- confusionMatrix(prediction_boost_test, testing$loan_status)
+  con_mat_test <- confusionMatrix(prediction_boost_test, testing$income)
   
   prediction_boost_train <- predict(gbmFit1, validation1, type = "raw")
   con_mat_train <- confusionMatrix(prediction_boost_train, validation1$loan_status)
