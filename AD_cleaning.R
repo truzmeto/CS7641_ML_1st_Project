@@ -1,5 +1,6 @@
 #!/usr/bin/Rscript
 
+library("caret")
 # loading locally stored data
 train <- read.csv("data/adult.data", na.strings = c("NA",""), header = FALSE)
 test <- read.csv("data/adult.test", na.strings = c("NA",""), header = FALSE, skip = 1)
@@ -119,10 +120,16 @@ data$relationship = factor(data$relationship)
 data$income = as.factor(ifelse(data$income==data$income[1],0,1))
 
 ## train test split
-train <- data[data$set == "train",]
-test <-  data[data$set == "test",]
-train$set <- NULL
-test$set <- NULL
+#train <- data[data$set == "train",]
+#test <- data[data$set == "test",]
+#train$set <- NULL
+#test$set <- NULL
+
+data$set <- NULL
+# break  data into train and test sets
+indx <- createDataPartition(y=data$income, p = 0.70, list=FALSE)
+train <- data[indx, ]
+test <- data[-indx, ] 
 
 write.table(train, file = "clean_data/adult_train.txt", row.names = FALSE, col.names = TRUE, sep = "  ")
 write.table(test, file = "clean_data/adult_test.txt", row.names = FALSE, col.names = TRUE, sep = "  ")

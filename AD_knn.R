@@ -56,6 +56,7 @@ dev.off()
 prediction_knn <- predict(knnFit, newdata = testing)
 con_mat<- confusionMatrix(prediction_knn, testing$income)
 
+
 ## output confusion matrix
 write.table(con_mat$table, file = "output/AD_confusion_mat_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 write.table(knnFit$bestTune, file = "output/AD_bestTune_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
