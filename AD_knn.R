@@ -11,7 +11,23 @@ registerDoMC(cores = 4)
 ## loading cleaned data
 training <- read.table("clean_data/adult_train.txt", sep = "", header = TRUE)
 testing <- read.table("clean_data/adult_test.txt", sep = "", header = TRUE)
-set.seed(300)
+
+
+## function to convert factor features to numeric
+FacToString <- function(input) {
+    for(i in 1:ncol(input)){
+        if(class(input[,i]) == "factor") {
+            input[,i] <- as.integer(as.factor(input[,i]))
+        }
+    }
+    input
+}
+
+## convert factors to numeric
+training <- FacToString(training)
+testing <- FacToString(testing)
+
+
 
 ## apply KNN algorithm
 set.seed(400)
@@ -19,7 +35,7 @@ ctrl <- trainControl(method = "repeatedcv",
                      number = 5,
                      repeats = 2)
 
-knnFit <- train(as.factor(loan_status) ~ .,
+knnFit <- train(as.factor(income) ~ .,
                 data = training,
                 method = "knn",
                 trControl = ctrl,
@@ -35,7 +51,7 @@ dev.off()
 
 # predict with knn
 prediction_knn <- predict(knnFit, newdata = testing)
-con_mat<- confusionMatrix(prediction_knn, testing$loan_status)
+con_mat<- confusionMatrix(prediction_knn, testing$income)
 
 ## output confusion matrix
 write.table(con_mat$table, file = "output/AD_confusion_mat_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
@@ -67,11 +83,11 @@ grid <-  expand.grid(k = best_k)
 for (i in 1:N_iter) { 
   
   new_train <- training1 
-  training1 <- new_train[createDataPartition(y=new_train$loan_status, p = train_frac, list=FALSE),]
+  training1 <- new_train[createDataPartition(y=new_train$income, p = train_frac, list=FALSE),]
   
   ## apply KNN algorithm
   start_time <- Sys.time() #start the clock--------------------------------------------------------------
-  knnFit <- train(as.factor(loan_status) ~ .,
+  knnFit <- train(as.factor(income) ~ .,
                   data = training1,
                   method = "knn",
                   trControl = ctrl,
@@ -84,12 +100,12 @@ for (i in 1:N_iter) {
   
   ## predict with knn on test set
   prediction_knn_test <- predict(knnFit, newdata = testing)
-  con_mat_test <- confusionMatrix(prediction_knn_test, testing$loan_status)
+  con_mat_test <- confusionMatrix(prediction_knn_test, testing$income)
   
   ## predict with knn on validation set
-  validation <- training1[createDataPartition(y=training1$loan_status, p = 0.3, list=FALSE),]
+  validation <- training1[createDataPartition(y=training1$income, p = 0.3, list=FALSE),]
   prediction_knn_train <- predict(knnFit, newdata = validation)
-  con_mat_train <- confusionMatrix(prediction_knn_train, validation$loan_status)
+  con_mat_train <- confusionMatrix(prediction_knn_train, validation$income)
   
   data_size[i] <- nrow(training1)
   test_accur[i] <- round(as.numeric(con_mat_test$overall[1]),3)
