@@ -18,7 +18,6 @@ set.seed(400)
 ctrl <- trainControl(method = "repeatedcv",
                      number = 5,
                      repeats = 2)
-#,summaryFunction = twoClassSummary)
 
 knnFit <- train(as.factor(loan_status) ~ .,
                 data = training,
