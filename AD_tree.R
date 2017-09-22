@@ -116,7 +116,7 @@ for (i in 1:N_iter) {
                        method="class",
                        #control = ("maxdepth = 20"),
                        parms = list(split = "information"), #, prior = c(.55,.45))
-                       control=rpart.control(minsplit = 5, cp = 0.0002))
+                       control=rpart.control(minsplit = 5, cp = 0))
   
   ## apply prunning 
   cp <- model_trees$cptable[which.min(model_trees$cptable[,"xerror"]),"CP"]
@@ -155,10 +155,10 @@ pl <- ggplot(results, aes(x=data_size)) +
       geom_point(aes(y = train_accur,colour = "train")) + 
       geom_point(aes(y = test_accur,colour = "test")) +
       theme_bw() +
-      ylim(0.65, .85) +
+      #ylim(0.65, .85) +
       #xlim(-0.01, ) +
       labs(title = "Adult Data Learning Curve Prunned Tree Model", x = "Training Size", y = "Accuracy", color="") +
-      theme(legend.position = c(0.2,0.8),
+      theme(legend.position = c(0.8,0.8),
             axis.title = element_text(size = 16.0),
             axis.text = element_text(size=10, face = "bold"),
             plot.title = element_text(size = 15, hjust = 0.5),
