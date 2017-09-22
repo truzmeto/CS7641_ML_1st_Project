@@ -89,7 +89,7 @@ write.table(con_mat_pruned_test$table, file = "output/AD_confusion_mat_tree.txt"
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
 
-N_iter <- 2    #|> number of iterations for learning curve
+N_iter <- 20    #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0
