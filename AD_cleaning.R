@@ -128,7 +128,6 @@ data$income = as.factor(ifelse(data$income==data$income[1],0,1))
 data$set <- NULL
 data$country <- NULL
 
-# break  data into train and test sets
 set.seed(100)
 indx <- createDataPartition(y=data$income, p = 0.70, list=FALSE)
 train <- data[indx, ]
