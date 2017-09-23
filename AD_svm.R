@@ -19,17 +19,9 @@ training <- read.table("clean_data/adult_train.txt", sep = "", header = TRUE)
 testing <- read.table("clean_data/adult_test.txt", sep = "", header = TRUE)
 
 
-## temp sub data for debugging --------------------------------------------------------------
-#sub_data <- training[createDataPartition(y=training$income, p = 0.03, list=FALSE),]
-#training <- sub_data
-##--------------------------------------------------------------------------------------------
-
-
-
 ##----------------------------------- Experiment 1 ------------------------------------##
 ## Support Vector Machines
-## Fit SVM model with two different kernels: Radial and Polynomial
-##TrainCtrl <- trainControl(method = "repeatedcv", number = 5,repeats=0,verbose = FALSE)
+## Fit SVM model with two different kernels: Radial and Linear
 TrainCtrl <- trainControl(method = "cv", number = 5, verbose = FALSE)
 
 ## Fit Radial Kernel----------------------------------------------------------
@@ -48,25 +40,25 @@ best_C <- model_svmRad$bestTune$C
 prediction_svm_Rad <- predict(model_svmRad, testing)
 con_mat_Rad <- confusionMatrix(prediction_svm_Rad, testing$income)
 
-## Fit Polynomial Kernel-------------------------------------------------------------------------
+## Fit Linear Kernel-------------------------------------------------------------------------
 set.seed(300)
-SVMgridPoly <- expand.grid(C = (1:10)*0.2 + 0.5, degree = 1:2, scale = 1) #(1:2)*2) 
+SVMgridLin <- expand.grid(C = (1:10)*0.2 + 0.5) 
 
-model_svmPoly <- train(factor(income) ~ .,
+model_svmLin <- train(factor(income) ~ .,
                       data = training, 
-                      method = 'svmPoly',
+                      method = 'svmLinear',
                       trControl = TrainCtrl,
-                      tuneGrid = SVMgridPoly,
+                      tuneGrid = SVMgridLin,
                       preProc = c("scale","center"),
                       verbose = FALSE)
 
 #best_sigma <- model_svm$bestTune$sigma
 #best_C <- model_svm$bestTune$C
-prediction_svm_Poly <- predict(model_svmPoly, testing)
-con_mat_Poly <- confusionMatrix(prediction_svm_Poly, testing$income)
+prediction_svm_Lin <- predict(model_svmLin, testing)
+con_mat_Lin <- confusionMatrix(prediction_svm_Lin, testing$income)
 
 ## compare two models collect models
-result_models <- resamples(list(Radial=model_svmRad, Polynomial=model_svmPoly))
+result_models <- resamples(list(Radial=model_svmRad, Linear=model_svmLin))
 
 # summarize the distributions
 summary(result_models)
@@ -80,9 +72,9 @@ dev.off()
 
 ## output confusion matrix
 write.table(con_mat_Rad$table, file = "output/AD_confusion_mat_svmRad.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
-write.table(con_mat_Poly$table, file = "output/AD_confusion_mat_svmPoly.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
-write.table(cbind(model_svmRad$bestTune,model_svmPoly$bestTune),
-            file = "output/AD_bestTune_svmRadPoly.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(con_mat_Lin$table, file = "output/AD_confusion_mat_svmLin.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(cbind(model_svmRad$bestTune,model_svmLin$bestTune),
+            file = "output/AD_bestTune_svmRadLin.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 #plot and save
@@ -162,7 +154,7 @@ pl <- ggplot(results, aes(x=data_size)) +
         axis.text.y = element_text(colour="black"))
 
 #plot and save
-png("figs/AD_svm_learning_curve.png", width = 5.0, height = 4.0, units = "in", res = 800)
+png("figs/AD_svm_learning_curveRad.png", width = 5.0, height = 4.0, units = "in", res = 800)
 pl
 dev.off()
 

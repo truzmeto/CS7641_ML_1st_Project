@@ -10,7 +10,7 @@ library("kernlab")
 library(doMC)
 registerDoMC(cores = 4)
 
-sub_frac <- 0.2 #|> subtraining fraction to use for training
+sub_frac <- 0.1 #|> subtraining fraction to use for training
 N_iter <- 20    #|> number of iterations for learning curve
 
 ## loading cleaned data
@@ -27,8 +27,7 @@ training <- sub_data
 
 ##----------------------------------- Experiment 1 ------------------------------------##
 ## Support Vector Machines
-## Fit SVM model with two different kernels: Radial and Polynomial
-##TrainCtrl <- trainControl(method = "repeatedcv", number = 5,repeats=0,verbose = FALSE)
+## Fit SVM model with two different kernels: Radial and Linear
 TrainCtrl <- trainControl(method = "cv", number = 5, verbose = FALSE)
 
 
@@ -50,31 +49,31 @@ con_mat_Rad <- confusionMatrix(prediction_svm_Rad, testing$loan_status)
 
 
 #plot and save
-pdf("figs/LC_svm_acc_cost_sigma.pdf")
+pdf("figs/LC_svm_acc_cost_sigmaRad.pdf")
 plot(model_svmRad)
 dev.off()
 
 
-## Fit Polynomial Kernel-------------------------------------------------------------------------
+## Fit Linear Kernel-------------------------------------------------------------------------
 set.seed(300)
-SVMgridPoly <- expand.grid(C = (1:10)*0.2 + 0.5, degree = 1:3, scale = 1) #(1:2)*2) 
+SVMgridLin <- expand.grid(C = (1:10)*0.2 + 0.5 ) 
 
-model_svmPoly <- train(factor(loan_status) ~ .,
+model_svmLin <- train(factor(loan_status) ~ .,
                       data = training, 
-                      method = 'svmPoly',
+                      method = 'svmLinear',
                       trControl = TrainCtrl,
-                      tuneGrid = SVMgridPoly,
+                      tuneGrid = SVMgridLin,
                       preProc = c("scale","center"),
                       verbose = FALSE)
 
 #best_sigma <- model_svm$bestTune$sigma
 #best_C <- model_svm$bestTune$C
-prediction_svm_Poly <- predict(model_svmPoly, testing)
-con_mat_Poly <- confusionMatrix(prediction_svm_Poly, testing$loan_status)
+prediction_svm_Lin <- predict(model_svmLin, testing)
+con_mat_Lin <- confusionMatrix(prediction_svm_Lin, testing$loan_status)
 
 ## compare two models
 # collect models
-result_models <- resamples(list(Radial=model_svmRad, Polynomial=model_svmPoly))
+result_models <- resamples(list(Radial=model_svmRad, Linear=model_svmLin))
 
 # summarize the distributions
 summary(result_models)
@@ -85,13 +84,11 @@ pdf("figs/LC_svm_model_compare.pdf")
 bwplot(result_models)
 dev.off()
 
-
 ## output confusion matrix
 write.table(con_mat_Rad$table, file = "output/LC_confusion_mat_svmRad.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
-write.table(con_mat_Poly$table, file = "output/LC_confusion_mat_svmPoly.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
-write.table(cbind(model_svmRad$bestTune,model_svmPoly$bestTune),
-            file = "output/LC_bestTune_svmRadPoly.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
-
+write.table(con_mat_Lin$table, file = "output/LC_confusion_mat_svmLin.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(cbind(model_svmRad$bestTune,model_svmLin$bestTune),
+            file = "output/LC_bestTune_svmRadLin.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 ##-------------------------------- Experiment 2 -------------------------------
