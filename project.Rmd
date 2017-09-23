@@ -1,0 +1,75 @@
+---
+title: "CS7641 Machine Learning First Assignment "
+author: "T. Ruzmetov"
+date: "September 20, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(warn=-1)
+```
+
+\center                  \center
+
+# Introduction
+
+Purpose of this assignmet is to investigate and compare the peredictive strength of five different machine
+learning techniques such as K-Neirest Naighbour, Desicion Trees, Boosted Desision Trees, Support Vector
+Machines and Artificial Neural Networks when applied to two distinct classification problems(distinct datasets).
+In order to fullfil the requirement, "Lending Club Dataset" from Kaggle and Adult Dataset from UCI machine leraning
+repository is utilized. 
+discover the features that are indicative	of	
+someone	paying or defaulting on their loan
+
+## Lending Club Dataset
+
+Lending Club is the world’s largest online marketplace connecting borrowers and investors. It is transforming the
+banking system to make credit more affordable and investing more rewarding. Provided dataset contain complete loan
+data for all loans issued through 2007 to 2015, including the current loan status (Current, Late, Fully Paid, etc.)
+and latest payment information. 
+
+
+## Adult Dataset
+
+
+The adult data set has over 22000 instances and 14 features of mostly cate-
+gorical variables. I did some preprocessing of the original data by discarding
+couple of repeated attributes and clean the categorical values by giving good
+names. We see from the table 1 that the binary classes are imbalanced. So, in
+addition to Accuracy metric, ROC metric is also needed for this data set
+when we compare and contrast different algorithms.
+
+
+
+
+
+
+## K-Neirest Naighbour 
+
+
+
+## Desicion Tree Algorithm with Prunning
+
+
+
+
+## Gradient Boosting
+
+
+
+
+## Neural Networks
+
+
+
+
+## Support Vector Machines
+
+
+
+
+## Conclusion
+
+
+

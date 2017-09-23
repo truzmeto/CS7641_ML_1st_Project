@@ -1,0 +1,8 @@
+#!/bin/bash
+
+mkdir -p output clean_data figs
+
+Rscript LC_cleaning.R
+Rscript AD_cleaning.R
+
+Rscript LC_knn.R
