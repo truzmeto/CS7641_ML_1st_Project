@@ -15,8 +15,8 @@ testing <- read.table("clean_data/adult_test.txt", sep = "", header = TRUE)
 
 
 ## temp sub data for debugging --------------------------------------------------------------
-sub_data <- training[createDataPartition(y=training$income, p = 0.04, list=FALSE),]
-training <- sub_data
+#sub_data <- training[createDataPartition(y=training$income, p = 0.04, list=FALSE),]
+#training <- sub_data
 ##--------------------------------------------------------------------------------------------
 
 ## setting seed for random number generator
@@ -28,7 +28,6 @@ testing[testing$income == 0,]$income <- "No"
 testing[testing$income == 1,]$income <- "Yes"
 
 
-
 ##############################################################################################
 ##--------------------------------- Experiment 1 -------------------------------------------##
 ## Cross validation
@@ -37,7 +36,7 @@ testing[testing$income == 1,]$income <- "Yes"
 set.seed(2017)
 fitControl <- trainControl(method = "repeatedcv", 
                            number = 5, 
-                           repeats = 2, 
+                           repeats = 4, 
                            classProbs = TRUE, 
                            summaryFunction = twoClassSummary)
 
@@ -66,8 +65,8 @@ best_decay <- as.numeric(nnetFit$bestTune[2])
 
 ## outputting some results
 write.table(con_mat_nnet$table, file = "output/AD_confusion_mat_nnet.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
-write.table(con_mat_nnet$overall, file = "output/AD_nnet_accuracy.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
-write.table(nnetFit$bestTune, file = "output/AD_bestTune.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(con_mat_nnet$overall, file = "output/AD_accuracy_nnet.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(nnetFit$bestTune, file = "output/AD_bestTune_nnet.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 ##-------------------------------- Experiment 2 -------------------------------
