@@ -17,7 +17,7 @@ set.seed(300)
 data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
      	
 ## extract some part of data and performe hyperparameter tuning 
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.01, list=FALSE),]
+sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
 
 ## break sub data into train test and validation sets
 indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
@@ -26,43 +26,79 @@ testing <- sub_data[-indx, ]
 
 ##----------------------------------- Experiment 1 ------------------------------------##
 ## Support Vector Machines
-## Fit SVM model
+## Fit SVM model with two different kernels: Radial and Polynomial
 ##TrainCtrl <- trainControl(method = "repeatedcv", number = 5,repeats=0,verbose = FALSE)
 TrainCtrl <- trainControl(method = "cv", number = 5, verbose = FALSE)
 
+
+## Fit Radial Kernel----------------------------------------------------------
 set.seed(300) 
-#SVMgrid <- expand.grid(C = (1:10)*0.2 + 0.5)#, sigma = c(0.030,0.033,0.035))
-SVMgrid <- expand.grid(C = (1:10)*0.2 + 0.5, degree = 1:2, scale = (1:2)*2 ) #, sigma = c(0.030,0.033,0.035))
-
-
-model_svm <- train(factor(loan_status) ~ .,
+SVMgridRad <- expand.grid(C = (1:10)*0.2 + 0.5, sigma = c(0.030,0.033,0.035))
+model_svmRad <- train(factor(loan_status) ~ .,
                      data = training, 
-                     method = 'svmPoly', #"svmLinear", #"svmRadial",
+                     method = "svmRadial",
                      trControl = TrainCtrl,
-                     tuneGrid = SVMgrid,
+                     tuneGrid = SVMgridRad,
                      preProc = c("scale","center"),
                      verbose = FALSE)
 
-best_sigma <- model_svm$bestTune$sigma
-best_C <- model_svm$bestTune$C
+best_sigma <- model_svmRad$bestTune$sigma
+best_C <- model_svmRad$bestTune$C
+prediction_svm_Rad <- predict(model_svmRad, testing)
+con_mat_Rad <- confusionMatrix(prediction_svm_Rad, testing$loan_status)
 
-prediction_svm <- predict(model_svm, testing)
-con_mat <- confusionMatrix(prediction_svm, testing$loan_status)
+## Fit Polynomial Kernel-------------------------------------------------------------------------
+set.seed(300)
+SVMgridPoly <- expand.grid(C = (1:10)*0.2 + 0.5, degree = 1:3, scale = (1:2)*2) 
+
+
+model_svmPoly <- train(factor(loan_status) ~ .,
+                      data = training, 
+                      method = 'svmPoly',
+                      trControl = TrainCtrl,
+                      tuneGrid = SVMgridPoly,
+                      preProc = c("scale","center"),
+                      verbose = FALSE)
+
+#best_sigma <- model_svm$bestTune$sigma
+#best_C <- model_svm$bestTune$C
+prediction_svm_Poly <- predict(model_svmPoly, testing)
+con_mat_Poly <- confusionMatrix(prediction_svm_Poly, testing$loan_status)
+
+## compare two models
+# collect models
+result_models <- resamples(list(Radial=model_svmRad, Polynomial=model_svmPoly))
+
+# summarize the distributions
+summary(result_models)
+
+# boxplots of results
+#plot and save
+pdf("figs/LC_svm_model_compare.pdf")
+bwplot(result_models)
+dev.off()
+
+#-------------------------------------------------------------------------------------------------------------------------!!!!!!!!!!!!!!!!!!
+
 
 ## output confusion matrix
-write.table(con_mat$table, file = "output/LC_confusion_mat_svm.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(con_mat_Rad$table, file = "output/LC_confusion_mat_svmRad.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(con_mat_Poly$table, file = "output/LC_confusion_mat_svmPoly.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+
+
+
 
 #plot and save
 pdf("figs/LC_svm_acc_cost_sigma.pdf")
-plot(model_svm)
+plot(model_svmRad)
 dev.off()
 
 
-##-------------------------------- Experiment 3 -------------------------------
+##-------------------------------- Experiment 2 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
 
-N_iter <- 10  #|> number of iterations for learning curve
+N_iter <- 20  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0
