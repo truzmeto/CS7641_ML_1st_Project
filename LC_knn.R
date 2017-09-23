@@ -147,7 +147,7 @@ pl <- ggplot(results, aes(x=data_size)) +
           theme_bw() +
           #ylim(0.0, 1.) +
           #xlim(0.0, 1) +
-          labs(title = "Learning Curve KNN", x = "Training Size", y = "Accuracy", color="") +
+          labs(title = "Learning Curve KNN LC", x = "Training Size", y = "Accuracy", color="") +
           theme(legend.position = c(0.2,0.8),
               axis.title = element_text(size = 16.0),
               axis.text = element_text(size=10, face = "bold"),

@@ -55,8 +55,6 @@ dev.off()
 cp <- model_trees$cptable[which.min(model_trees$cptable[,"xerror"]),"CP"]
 pruned_tree <- prune(model_trees, cp = cp)
 
-#results_tree <- rbind(con_mat_test)
-
 ## plotting pruned tree diagram
 library(rpart.plot)
 png("figs/LC_pruned_tree_diag.png", width = 6.0, height = 4.0, units = "in", res = 800)
@@ -86,7 +84,6 @@ write.table(results_tree, file = "output/LC_tree_pre_post_pruning_results.txt", 
 write.table(con_mat_pruned_test$table, file = "output/LC_confusion_mat_tree.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
-
 ##-------------------------------- Experiment 2 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
@@ -113,6 +110,7 @@ for (i in 1:N_iter) {
   training1 <- new_train[createDataPartition(y=new_train$loan_status, p = train_frac, list=FALSE),]
 
   start_time <- Sys.time() #start the clock---------------------------------------------------------
+
   ## building a model with trees
   model_trees <- rpart(factor(loan_status) ~. , data = training1,
                        method="class",
@@ -159,7 +157,7 @@ pl <- ggplot(results, aes(x=data_size)) +
       theme_bw() +
       ylim(0.65, .85) +
       #xlim(-0.01, ) +
-      labs(title = "Learning Curve Prunned Tree Model", x = "Training Size", y = "Accuracy", color="") +
+      labs(title = "Learning Curve Prunned Tree Model LC", x = "Training Size", y = "Accuracy", color="") +
       theme(legend.position = c(0.2,0.8),
             axis.title = element_text(size = 16.0),
             axis.text = element_text(size=10, face = "bold"),
