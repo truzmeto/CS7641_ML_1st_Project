@@ -85,9 +85,6 @@ dev.off()
 write.table(con_mat_Rad$table, file = "output/LC_confusion_mat_svmRad.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 write.table(con_mat_Poly$table, file = "output/LC_confusion_mat_svmPoly.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
-
-
-
 #plot and save
 pdf("figs/LC_svm_acc_cost_sigma.pdf")
 plot(model_svmRad)
