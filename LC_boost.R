@@ -8,19 +8,18 @@ library("plyr")
 library(doMC)
 registerDoMC(cores = 4)
 
-## setting seed for random number generator
-set.seed(300)
+sub_frac <- 0.2 #|> subtraining fraction to use for training
+N_iter <- 20    #|> number of iterations for learning curve
 
 ## loading cleaned data
-data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
+training <- read.table("clean_data/loan_train.txt", sep = "", header = TRUE)
+testing <- read.table("clean_data/loan_test.txt", sep = "", header = TRUE)
 
-## extract 10% of data and perfor hyperparameter tuning 
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
-
-# break sub data into train test and validation sets
-indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
-training <- sub_data[indx, ]
-testing <- sub_data[-indx, ] 
+## extract fraction of data and perfor hyperparameter tuning 
+set.seed(300)
+sub_data <- training[createDataPartition(y=training$loan_status, p = sub_frac, list = FALSE),]
+training <- sub_data
+#validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.3, list=FALSE), ]
 
 
 ##############################################################################################
@@ -36,7 +35,7 @@ gbmGrid <-  expand.grid(interaction.depth = c(3, 5, 7, 9),
 fitControl <- trainControl(method = "repeatedcv", number = 5, repeats = 4)
 
 
-set.seed(825)
+set.seed(500)
 gbmFit <- train(factor(loan_status) ~ ., data = training, 
                  method = "gbm", 
                  trControl = fitControl, 
@@ -57,16 +56,12 @@ dev.off()
 prediction_boost_test <- predict(gbmFit, testing, type = "raw")
 con_mat <- confusionMatrix(prediction_boost_test, testing$loan_status)
 
-#prediction_boost_train <- predict(gbmFit, validation, type = "raw")
-#confusionMatrix(prediction_boost_train, validation$loan_status) 
 write.table(con_mat$table, file = "output/LC_confusion_mat_boost.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 ##-------------------------------- Experiment 2 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
-
-N_iter <- 10  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0
@@ -91,7 +86,6 @@ fitControl <- trainControl(method = "none")
 
 
 for (i in 1:N_iter) { 
-  
 
   new_train <- training1 
   training1 <- new_train[createDataPartition(y = new_train$loan_status, p = 0.8, list = FALSE),]

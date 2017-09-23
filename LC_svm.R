@@ -10,19 +10,20 @@ library("kernlab")
 library(doMC)
 registerDoMC(cores = 4)
 
-## setting seed for random number generator
-set.seed(300)
-	
-## loading cleaned data
-data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
-     	
-## extract some part of data and performe hyperparameter tuning 
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
+sub_frac <- 0.2 #|> subtraining fraction to use for training
+N_iter <- 20    #|> number of iterations for learning curve
 
-## break sub data into train test and validation sets
-indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
-training <- sub_data[indx, ]
-testing <- sub_data[-indx, ] 
+## loading cleaned data
+training <- read.table("clean_data/loan_train.txt", sep = "", header = TRUE)
+testing <- read.table("clean_data/loan_test.txt", sep = "", header = TRUE)
+
+
+## extract fraction of data and perfor hyperparameter tuning 
+set.seed(300)
+sub_data <- training[createDataPartition(y=training$loan_status, p = sub_frac, list = FALSE),]
+training <- sub_data
+#validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.3, list=FALSE), ]
+
 
 ##----------------------------------- Experiment 1 ------------------------------------##
 ## Support Vector Machines
@@ -96,8 +97,6 @@ write.table(cbind(model_svmRad$bestTune,model_svmPoly$bestTune),
 ##-------------------------------- Experiment 2 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
-
-N_iter <- 20  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0

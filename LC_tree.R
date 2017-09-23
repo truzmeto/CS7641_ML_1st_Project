@@ -9,19 +9,20 @@ library("rpart")
 library(doMC)
 registerDoMC(cores = 4)
 
-## setting seed for random number generator
-set.seed(300)
+
+sub_frac <- 0.2 #|> subtraining fraction to use for training
+N_iter <- 20    #|> number of iterations for learning curve
+
 
 ## loading cleaned data
-data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
+training <- read.table("clean_data/loan_train.txt", sep = "", header = TRUE)
+testing <- read.table("clean_data/loan_test.txt", sep = "", header = TRUE)
 
-## extract 10% of data and perfor hyperparameter tuning 
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list = FALSE),]
 
-## break sub data into train test and validation sets
-indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list = FALSE)
-training <- sub_data[indx, ]
-testing <- sub_data[-indx, ] 
+## extract fraction of data and perfor hyperparameter tuning 
+set.seed(300)
+sub_data <- training[createDataPartition(y=training$loan_status, p = sub_frac, list = FALSE),]
+training <- sub_data
 validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.3, list=FALSE), ]
 
 
@@ -34,7 +35,7 @@ validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.3, list
 model_trees <- rpart(factor(loan_status) ~. , data = training,
                      method="class",
                      parms = list(split = "information"), #, prior = c(.55,.45))
-                     control=rpart.control(minsplit = 5, cp = 0.0002)) 
+                     control=rpart.control(minsplit = 5, cp = 0)) 
 
 ## predict on test set
 prediction_test <- predict(model_trees, testing, type = "class")
@@ -88,20 +89,15 @@ write.table(con_mat_pruned_test$table, file = "output/LC_confusion_mat_tree.txt"
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
 
-N_iter <- 20    #|> number of iterations for learning curve
-
 # initilzing empty array for some measures
 test_accur <- 0
 test_kap <- 0
 train_accur <- 0
 train_kap <- 0
-
 cpu_time <- 0
 data_size <- 0
-
 set.seed(500)   #|> setting random seed
 train_frac <- 0.8 
-
 training1 <- training
 
 for (i in 1:N_iter) { 

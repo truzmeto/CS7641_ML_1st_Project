@@ -49,7 +49,7 @@ data <- data[!(data$home_ownership %in% c("ANY","OTHER","NONE")), ]
 
 # plitting loan_status into two classes, "paid" > 1, "unpaid" > 0
 data$loan_status <- ifelse(data$loan_status == "Fully Paid" |
-                        data$loan_status == "Does not meet the credit policy.  Status:Fully Paid", 1,0)
+                        data$loan_status == "Does not meet the credit policy.  Status:Fully Paid", "paid","unpaid")
 
 
 # missing value imputation: look at all numeric columns

@@ -8,22 +8,18 @@ library("plyr")
 library(doMC)
 registerDoMC(cores = 4)
 
-
-## setting seed for random number generator
-set.seed(300)
+sub_frac <- 0.2 #|> subtraining fraction to use for training
+N_iter <- 20    #|> number of iterations for learning curve
 
 ## loading cleaned data
-data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
-data[data$loan_status == 0,]$loan_status <- "No"
-data[data$loan_status == 1,]$loan_status <- "Yes"
+training <- read.table("clean_data/loan_train.txt", sep = "", header = TRUE)
+testing <- read.table("clean_data/loan_test.txt", sep = "", header = TRUE)
 
-## extract 10% of data and perfor hyperparameter tuning 
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
-
-# break sub data into train test and validation sets
-indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
-training <- sub_data[indx, ]
-testing <- sub_data[-indx, ] 
+## extract fraction of data and perfor hyperparameter tuning 
+set.seed(300)
+sub_data <- training[createDataPartition(y=training$loan_status, p = sub_frac, list = FALSE),]
+training <- sub_data
+validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.3, list=FALSE), ]
 
 
 ##############################################################################################
@@ -61,7 +57,6 @@ best_size <- as.numeric(nnetFit$bestTune[1])
 best_decay <- as.numeric(nnetFit$bestTune[2])
 
 
-
 write.table(con_mat_nnet$table, file = "output/LC_confusion_mat_nnet.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 write.table(con_mat_nnet$overall, file = "output/LC_nnet_accuracy.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
@@ -69,8 +64,6 @@ write.table(con_mat_nnet$overall, file = "output/LC_nnet_accuracy.txt", row.name
 ##-------------------------------- Experiment 2 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
-
-N_iter <- 20  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0

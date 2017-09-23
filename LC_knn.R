@@ -9,38 +9,22 @@ library("Rmisc")
 library(doMC)
 registerDoMC(cores = 4)
 
-## setting seed for random number generator
-set.seed(300)
+sub_frac <- 0.2 #|> subtraining fraction to use for training
+N_iter <- 20    #|> number of iterations for learning curve
 
 ## loading cleaned data
-data <- read.table("clean_data/loan.txt", sep = "", header = TRUE)
+training <- read.table("clean_data/loan_train.txt", sep = "", header = TRUE)
+testing <- read.table("clean_data/loan_test.txt", sep = "", header = TRUE)
 
-# function to convert factor features to numeric
-FacToString <- function(input) {
-  for(i in 1:ncol(input)){
-    if(class(input[,i]) == "factor") { 
-      input[,i] <- as.integer(as.factor(input[,i])) 
-    }
-  }
-  input
-}
+## extract fraction of data and perfor hyperparameter tuning 
+set.seed(300)
+sub_data <- training[createDataPartition(y=training$loan_status, p = sub_frac, list = FALSE),]
+training <- sub_data
+#validation <- training[createDataPartition(y=sub_data$loan_status, p = 0.3, list=FALSE), ]
 
-# convert factors to numeric
-data <- FacToString(data)
-
-# convert "loan_status" col. back to factor
-data$loan_status <- as.factor(data$loan_status)
 
 ##-------------------------------- Experiment 1 -------------------------------------## 
 ## Find optimum k value, which correspond to highest accuracy
-
-## extract some % of data and perfor hyperparameter tuning with 5 fold cross validation
-sub_data <- data[createDataPartition(y=data$loan_status, p = 0.1, list=FALSE),]
-
-# break sub data into train and test sets
-indx <- createDataPartition(y=sub_data$loan_status, p = 0.70, list=FALSE)
-training <- sub_data[indx, ]
-testing <- sub_data[-indx, ] 
 
 ## apply KNN algorithm
 set.seed(400)
@@ -48,7 +32,6 @@ ctrl <- trainControl(method = "repeatedcv",
                      number = 5,
                      repeats = 2)
                     #,summaryFunction = twoClassSummary)
-
 
 knnFit <- train(loan_status ~ .,
                 data = training,
@@ -77,8 +60,6 @@ write.table(knnFit$bestTune, file = "output/LC_bestTune_knn.txt", row.names = TR
 ##----------------------------------------- Experiment 2 ------------------------------------------##
 # Learning Curve
 # Performe knn prediction by increasing data size. Plot data size vs error, and performance
-
-N_iter <- 20  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_err <- 0
