@@ -1,3 +1,3 @@
-"No"  "Yes"
-"No"  318  273
-"Yes"  2016  5954
+"paid"  "unpaid"
+"paid"  19812  6532
+"unpaid"  945  1248

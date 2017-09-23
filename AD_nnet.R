@@ -23,11 +23,6 @@ testing <- read.table("clean_data/adult_test.txt", sep = "", header = TRUE)
 ## setting seed for random number generator
 set.seed(300)
 
-training[training$income == 0,]$income <- "No"
-training[training$income == 1,]$income <- "Yes"
-testing[testing$income == 0,]$income <- "No"
-testing[testing$income == 1,]$income <- "Yes"
-
 
 ##############################################################################################
 ##--------------------------------- Experiment 1 -------------------------------------------##
