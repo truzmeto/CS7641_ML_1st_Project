@@ -1,6 +1,5 @@
 #!/usr/bin/Rscript
 
-library("caret")
 # loading locally stored data
 train <- read.csv("data/adult.data", na.strings = c("NA",""), header = FALSE)
 test <- read.csv("data/adult.test", na.strings = c("NA",""), header = FALSE, skip = 1)
@@ -118,26 +117,19 @@ data$race = factor(data$race)
 data$sex = factor(data$sex)
 data$relationship = factor(data$relationship)
 
-
-#----------------------------------------------------------------------fix
-data$income = as.factor(ifelse(data$income==data$income[1],0,1))
-
-
-#------------------------------------------------------------------------
+data$country <- NULL
+#------------ reduce levels from 4 to 2 ----------------------------------
+data$income <- gsub("K.", "", data$income)
+data$income <- gsub("K", "", data$income)
+data$income <- as.factor(data$income)
+data$income = as.factor(ifelse(data$income == data$income[1],"low","high"))
+#-------------------------------------------------------------------------
 
 ## train test split
-#train <- data[data$set == "train",]
-#test <- data[data$set == "test",]
-#train$set <- NULL
-#test$set <- NULL
-
-data$set <- NULL
-data$country <- NULL
-
-set.seed(100)
-indx <- createDataPartition(y=data$income, p = 0.70, list=FALSE)
-train <- data[indx, ]
-test <- data[-indx, ] 
+train <- data[data$set == "train",]
+test <- data[data$set == "test",]
+train$set <- NULL
+test$set <- NULL
 
 write.table(train, file = "clean_data/adult_train.txt", row.names = FALSE, col.names = TRUE, sep = "  ")
 write.table(test, file = "clean_data/adult_test.txt", row.names = FALSE, col.names = TRUE, sep = "  ")
