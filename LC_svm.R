@@ -33,7 +33,7 @@ TrainCtrl <- trainControl(method = "cv", number = 5, verbose = FALSE)
 
 ## Fit Radial Kernel----------------------------------------------------------
 set.seed(300) 
-SVMgridRad <- expand.grid(C = (1:10)*0.2 + 0.5, sigma = c(0.030,0.033,0.035))
+SVMgridRad <- expand.grid(C = (1:10)*0.2 + 0.5, sigma = c(0.030,0.033))
 model_svmRad <- train(factor(loan_status) ~ .,
                      data = training, 
                      method = "svmRadial",
@@ -47,10 +47,16 @@ best_C <- model_svmRad$bestTune$C
 prediction_svm_Rad <- predict(model_svmRad, testing)
 con_mat_Rad <- confusionMatrix(prediction_svm_Rad, testing$loan_status)
 
+
+#plot and save
+pdf("figs/LC_svm_acc_cost_sigma.pdf")
+plot(model_svmRad)
+dev.off()
+
+
 ## Fit Polynomial Kernel-------------------------------------------------------------------------
 set.seed(300)
-SVMgridPoly <- expand.grid(C = (1:10)*0.2 + 0.5, degree = 1:3, scale = (1:2)*2) 
-
+SVMgridPoly <- expand.grid(C = (1:10)*0.2 + 0.5, degree = 1:3, scale = 1) #(1:2)*2) 
 
 model_svmPoly <- train(factor(loan_status) ~ .,
                       data = training, 
@@ -78,17 +84,13 @@ pdf("figs/LC_svm_model_compare.pdf")
 bwplot(result_models)
 dev.off()
 
-#-------------------------------------------------------------------------------------------------------------------------!!!!!!!!!!!!!!!!!!
-
 
 ## output confusion matrix
 write.table(con_mat_Rad$table, file = "output/LC_confusion_mat_svmRad.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 write.table(con_mat_Poly$table, file = "output/LC_confusion_mat_svmPoly.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(cbind(model_svmRad$bestTune,model_svmPoly$bestTune),
+            file = "output/LC_bestTune_svmRadPoly.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
-#plot and save
-pdf("figs/LC_svm_acc_cost_sigma.pdf")
-plot(model_svmRad)
-dev.off()
 
 
 ##-------------------------------- Experiment 2 -------------------------------
