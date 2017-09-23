@@ -8,7 +8,7 @@ library("plyr")
 library("rpart")
 library("kernlab")
 library(doMC)
-registerDoMC(cores = 4)
+registerDoMC(cores = 8)
 
 ## setting seed for random number generator
 set.seed(300)
@@ -49,7 +49,6 @@ con_mat_Rad <- confusionMatrix(prediction_svm_Rad, testing$income)
 ## Fit Polynomial Kernel-------------------------------------------------------------------------
 set.seed(300)
 SVMgridPoly <- expand.grid(C = (1:10)*0.2 + 0.5, degree = 1:2, scale = 1) #(1:2)*2) 
-
 
 model_svmPoly <- train(factor(income) ~ .,
                       data = training, 
