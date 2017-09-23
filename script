@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#ssh <gt-username>@cc-shuttle1.cc.gatech.edu
+
 mkdir -p output clean_data figs
 
 Rscript LC_cleaning.R

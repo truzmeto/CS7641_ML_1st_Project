@@ -2,9 +2,9 @@
 
 ## Importing libraries
 library("lattice") 
-library("lattice")
 library("plyr")
 library("stringr")
+library("caret")
 
 # loading locally stored data
 data <- read.csv("data/loan.csv", na.strings = c("NA",""))
@@ -60,5 +60,11 @@ for(i in 1:ncol(data)){
   }
 }
 
-write.table(data, file = "clean_data/loan.txt", row.names = FALSE, col.names = TRUE, sep = "  ")
+set.seed(100)
+indx <- createDataPartition(y=data$loan_status, p = 0.90, list=FALSE)
+train <- data[indx, ]
+test <- data[-indx, ] 
+
+write.table(train, file = "clean_data/loan_train.txt", row.names = FALSE, col.names = TRUE, sep = "  ")
+write.table(test, file = "clean_data/loan_test.txt", row.names = FALSE, col.names = TRUE, sep = "  ")
 
