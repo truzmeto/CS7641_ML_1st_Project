@@ -10,15 +10,14 @@ knitr::opts_chunk$set(echo = TRUE)
 options(warn=-1)
 ```
 
-\center                  \center
 
 # Introduction
 
 Purpose of this assignmet is to investigate and compare the performance of five different machine
 learning techniques such as K-Neirest Naighbour, Desicion Trees, Boosted Desision Trees, Support Vector
-Machines and Artificial Neural Networks when applied to two distinct classification problems(distinct datasets).
+Machines and Artificial Neural Networks, when applied to two distinct classification problems(distinct datasets).
 In order to fullfil the requirement, "Lending Club Dataset" from Kaggle and Adult Dataset from UCI machine
-leraning repository is utilized. 
+leraning repository are used.  
 
 
 
@@ -28,47 +27,75 @@ Lending Club is the world’s largest online marketplace connecting borrowers an
 contain complete loan data for all loans issued through 2007 to 2015, including the current loan status(Current,
 Late, Fully Paid, etc.). In this problem, we are suppose to predicte if customer is goint to pay or default on
 their loan based on provided set of features with labels. Instances with "Current" loan status are discarded to
-make it simple binary classification problem with two labels(defaulted=0, paid=1). After cleaning and feature
-extraction, the dataset contains 15 features and 285373 samples. Only 10% of this data is used for modelling in
-order to reduce training time. 
+make it simple binary classification problem with two labels(unpaid,paid). After cleaning and feature
+extraction, the dataset contains 15 features and 285373 samples. Fraction(20%) of this data is used for training
+in order to reduce computation time, and 10% is kept for testing. 
 
 
 ## Adult Dataset
 
-The adult data set has over 22000 instances and 14 features of mostly cate-
-gorical variables. I did some preprocessing of the original data by discarding
-couple of repeated attributes and clean the categorical values by giving good
-names. We see from the table 1 that the binary classes are imbalanced. So, in
-addition to Accuracy metric, ROC metric is also needed for this data set
-when we compare and contrast different algorithms.
-
-
-
+The adult dataset contains census information from 1994. Our taske is to predict whether a person makes more
+than $50K/year. After preprocessing is applied, there are 11 features and 45000 remaining instances. The target 
+feature "income" is labeled as "high" when income is greater than $50K and "low" when it is less. 
 
 
 
 ## K-Neirest Naighbour 
 
 
+\includegraphics[width=6.0cm]{figs/LC_knn_acc_naigh.pdf}
+\includegraphics[width=6.0cm]{figs/AD_knn_acc_naigh.pdf}
+
+
+\includegraphics[width=8.0cm]{figs/LC_knn_learning_curve.png}
+\includegraphics[width=8.0cm]{figs/AD_knn_learning_curve.png}
+
+
 
 ## Desicion Tree Algorithm with Prunning
 
+\includegraphics[width=14.0cm]{figs/LC_pruned_tree_diag.png}
 
+
+
+\includegraphics[width=8.0cm]{figs/LC_tree_cp_xerror.png}
+\includegraphics[width=8.0cm]{figs/AD_tree_cp_xerror.png}
+
+
+
+\includegraphics[width=8.0cm]{figs/LC_tree_learning_curve.png}
+\includegraphics[width=8.0cm]{figs/AD_tree_learning_curve.png}
 
 
 ## Gradient Boosting
 
+\includegraphics[width=8.0cm]{figs/LC_boost_acc_iter_shrink.pdf}
+\includegraphics[width=8.0cm]{figs/AD_boost_acc_iter_shrink.pdf}
+
+
+
+\includegraphics[width=8.0cm]{figs/LC_boosting_learning_curve.png}
+\includegraphics[width=8.0cm]{figs/AD_boosting_learning_curve.png}
 
 
 
 ## Neural Networks
 
+\includegraphics[width=8.0cm]{figs/LC_nnet_ROC_units_weight.pdf}
+\includegraphics[width=8.0cm]{figs/AD_nnet_ROC_units_weight.pdf}
 
+
+
+
+\includegraphics[width=8.0cm]{figs/LC_nnet_learning_curve.png}
+\includegraphics[width=8.0cm]{figs/AD_nnet_learning_curve.png}
 
 
 ## Support Vector Machines
 
 
+\includegraphics[width=8.0cm]{figs/LC_svm_learning_curve.png}
+\includegraphics[width=8.0cm]{figs/AD_svm_learning_curve.png}
 
 
 ## Conclusion
