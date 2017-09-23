@@ -117,7 +117,13 @@ data$occupation = factor(data$occupation)
 data$race = factor(data$race)
 data$sex = factor(data$sex)
 data$relationship = factor(data$relationship)
+
+
+#----------------------------------------------------------------------fix
 data$income = as.factor(ifelse(data$income==data$income[1],0,1))
+
+
+#------------------------------------------------------------------------
 
 ## train test split
 #train <- data[data$set == "train",]
