@@ -8,6 +8,7 @@ library("plyr")
 library(doMC)
 registerDoMC(cores = 4)
 
+N_iter <- 20    #|> number of iterations for learning curve
 
 ## loading cleaned data
 training <- read.table("clean_data/adult_train.txt", sep = "", header = TRUE)
@@ -72,8 +73,6 @@ write.table(nnetFit$bestTune, file = "output/AD_bestTune_nnet.txt", row.names = 
 ##-------------------------------- Experiment 2 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
-
-N_iter <- 20  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0

@@ -8,16 +8,16 @@ library("Rmisc")
 library(doMC)
 registerDoMC(cores = 4)
 
+N_iter <- 20    #|> number of iterations for learning curve
+
 ## loading cleaned data
 training <- read.table("clean_data/adult_train.txt", sep = "", header = TRUE)
 testing <- read.table("clean_data/adult_test.txt", sep = "", header = TRUE)
-
 
 ## temp sub data for debugging --------------------------------------------------------------
 #sub_data <- training[createDataPartition(y=training$income, p = 0.1, list=FALSE),]
 #training <- sub_data
 ##--------------------------------------------------------------------------------------------
-
 
 ##############################################################################################
 ##--------------------------------- Experiment 1 -------------------------------------------##
@@ -61,8 +61,6 @@ write.table(gbmFit$bestTune, file = "output/AD_bestTune_boost.txt", row.names = 
 ##-------------------------------- Experiment 2 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
-
-N_iter <- 15  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0

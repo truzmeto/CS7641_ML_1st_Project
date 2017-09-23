@@ -9,6 +9,8 @@ library("rpart")
 library(doMC)
 registerDoMC(cores = 4)
 
+N_iter <- 20    #|> number of iterations for learning curve
+
 ## setting seed for random number generator
 set.seed(300)
 
@@ -22,7 +24,6 @@ testing <- read.table("clean_data/adult_test.txt", sep = "", header = TRUE)
 ##--------------------------------------------------------------------------------------------
 
 validation <- training[createDataPartition(y=training$income, p = 0.3, list=FALSE), ]
-
 
 ##############################################################################################
 ##--------------------------------- Experiment 1 -------------------------------------------##
@@ -88,8 +89,6 @@ write.table(con_mat_pruned_test$table, file = "output/AD_confusion_mat_tree.txt"
 ##-------------------------------- Experiment 2 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
-
-N_iter <- 20    #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0

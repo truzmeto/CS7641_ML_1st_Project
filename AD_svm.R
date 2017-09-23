@@ -8,7 +8,9 @@ library("plyr")
 library("rpart")
 library("kernlab")
 library(doMC)
-registerDoMC(cores = 8)
+registerDoMC(cores = 4)
+
+N_iter <- 20    #|> number of iterations for learning curve
 
 ## setting seed for random number generator
 set.seed(300)
@@ -91,8 +93,6 @@ dev.off()
 ##-------------------------------- Experiment 2 -------------------------------
 # Learning Curve
 # Vary trainig set size and and observe how accuracy of prediction affected
-
-N_iter <- 20  #|> number of iterations for learning curve
 
 # initilzing empty array for some measures
 test_accur <- 0

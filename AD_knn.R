@@ -8,6 +8,8 @@ library("Rmisc")
 library(doMC)
 registerDoMC(cores = 4)
 
+N_iter <- 20  #|> number of iterations for learning curve
+
 ## loading cleaned data
 training <- read.table("clean_data/adult_train.txt", sep = "", header = TRUE)
 testing <- read.table("clean_data/adult_test.txt", sep = "", header = TRUE)
@@ -30,7 +32,6 @@ testing <- FacToString(testing)
 # convert "income" col. back to factor
 training$income<- as.factor(training$income)
 testing$income<- as.factor(testing$income)
-
 
 ## apply KNN algorithm
 set.seed(400)
@@ -74,7 +75,6 @@ train_accur <- 0
 train_kap <- 0
 cpu_time <- 0
 data_size <- 0
-N_iter <- 20  #|> number of iterations for learning curve
 
 set.seed(500)   #|> setting random seed
 train_frac <- 0.8 
@@ -145,4 +145,3 @@ pl <- ggplot(results, aes(x=data_size)) +
 png("figs/AD_knn_learning_curve.png", width=5.0, height = 4.0, units = "in", res=800)
 pl
 dev.off()
-
