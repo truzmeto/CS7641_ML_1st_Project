@@ -18,8 +18,8 @@ testing <- read.table("clean_data/adult_test.txt", sep = "", header = TRUE)
 
 
 ## temp sub data for debugging --------------------------------------------------------------
-sub_data <- training[createDataPartition(y=training$income, p = 0.03, list=FALSE),]
-training <- sub_data
+#sub_data <- training[createDataPartition(y=training$income, p = 0.03, list=FALSE),]
+#training <- sub_data
 ##--------------------------------------------------------------------------------------------
 
 
