@@ -32,7 +32,7 @@ TrainCtrl <- trainControl(method = "cv", number = 5, verbose = FALSE)
 
 ## Fit Radial Kernel----------------------------------------------------------
 set.seed(300) 
-SVMgridRad <- expand.grid(C = (1:10)*0.2 + 0.5, sigma = c(0.030,0.033,0.035))
+SVMgridRad <- expand.grid(C = (1:10)*0.2 + 0.5, sigma = c(0.030,0.033))
 model_svmRad <- train(factor(income) ~ .,
                      data = training, 
                      method = "svmRadial",
@@ -76,7 +76,6 @@ pdf("figs/AD_svm_model_compare.pdf")
 bwplot(result_models)
 dev.off()
 
-#-------------------------------------------------------------------------------------------------------------------------!!!!!!!!!!!!!!!!!!
 
 ## output confusion matrix
 write.table(con_mat_Rad$table, file = "output/AD_confusion_mat_svmRad.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
