@@ -55,6 +55,8 @@ con_mat<- confusionMatrix(prediction_knn, testing$loan_status)
 ## output confusion matrix
 write.table(con_mat$table, file = "output/LC_confusion_mat_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 write.table(knnFit$bestTune, file = "output/LC_bestTune_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(knnFit$results, file = "output/LC_cross_val_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(con_mat$overall, file = "output/LC_taccuracy_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 
 
 ##----------------------------------------- Experiment 2 ------------------------------------------##

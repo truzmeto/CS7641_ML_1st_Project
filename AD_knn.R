@@ -15,25 +15,6 @@ training <- read.table("clean_data/adult_train.txt", sep = "", header = TRUE)
 testing <- read.table("clean_data/adult_test.txt", sep = "", header = TRUE)
 
 
-## function to convert factor features to numeric
-#FacToString <- function(input) {
-#    for(i in 1:ncol(input)){
-#        if(class(input[,i]) == "factor") {
-#            input[,i] <- as.integer(as.factor(input[,i]))
-#        }
-#    }
-#    input
-#}
-
-## convert factors to numeric
-#training <- FacToString(training)
-#testing <- FacToString(testing)
-
-# convert "income" col. back to factor
-#training$income<- as.factor(training$income)
-#testing$income<- as.factor(testing$income)
-
-
 ## apply KNN algorithm
 set.seed(400)
 ctrl <- trainControl(method = "repeatedcv",
@@ -62,6 +43,9 @@ con_mat<- confusionMatrix(prediction_knn, testing$income)
 ## output confusion matrix
 write.table(con_mat$table, file = "output/AD_confusion_mat_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
 write.table(knnFit$bestTune, file = "output/AD_bestTune_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+#write.table(knnFit$results, file = "output/AD_cross_val_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+write.table(con_mat$overall, file = "output/AD_taccuracy_knn.txt", row.names = TRUE, col.names = TRUE, sep = "  ")
+
 
 
 ##----------------------------------------- Experiment 2 ------------------------------------------##
