@@ -16,22 +16,23 @@ testing <- read.table("clean_data/adult_test.txt", sep = "", header = TRUE)
 
 
 ## function to convert factor features to numeric
-FacToString <- function(input) {
-    for(i in 1:ncol(input)){
-        if(class(input[,i]) == "factor") {
-            input[,i] <- as.integer(as.factor(input[,i]))
-        }
-    }
-    input
-}
+#FacToString <- function(input) {
+#    for(i in 1:ncol(input)){
+#        if(class(input[,i]) == "factor") {
+#            input[,i] <- as.integer(as.factor(input[,i]))
+#        }
+#    }
+#    input
+#}
 
 ## convert factors to numeric
-training <- FacToString(training)
-testing <- FacToString(testing)
+#training <- FacToString(training)
+#testing <- FacToString(testing)
 
 # convert "income" col. back to factor
-training$income<- as.factor(training$income)
-testing$income<- as.factor(testing$income)
+#training$income<- as.factor(training$income)
+#testing$income<- as.factor(testing$income)
+
 
 ## apply KNN algorithm
 set.seed(400)
