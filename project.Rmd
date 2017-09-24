@@ -15,20 +15,20 @@ options(warn=-1)
 # Introduction
 
 Purpose of this assignment is to investigate and compare the performance of five different machine
-learning techniques such as K-Neirest Naighbour, Desicion Trees with prunning, Boosted Desision Trees, Support Vector
+learning techniques such as K-Nearest Neighbor, Decision Trees with pruning, Boosted Derision Trees, Support Vector
 Machines and Artificial Neural Networks by applying them to two distinct classification problems(distinct datasets).
-In order to fullfil the requirement, "Lending Club Dataset" from Kaggle and Adult Dataset from UCI machine leraning
-repository are used. For all methods on both datasets cross validation is performed in order to find optimum hyperparameter. Learning curve experiment is done by altering training data size and monitoring performance via prediction accuracy.    
+In order to fulfill the requirement, "Lending Club Data set" from Kaggle and Adult Data set from UCI machine learning
+repository are used. For all methods on both data sets cross validation is performed in order to find optimum hyper parameter. Learning curve experiment is done by altering training data size and monitoring performance via prediction accuracy.    
 
 
 
 ## Lending Club Dataset
 
 Lending Club is the world’s largest online marketplace connecting borrowers and investors. Getting loan has become common practice in developed countries, which makes it interesting to learn how banks determine customer eligibility or credit worthiness given some information. In this problem, we apply unsupervised learning methods to predict if
-customer is goint to pay or default on their loan based on provided set of features with labels. Provided dataset
+customer is going to pay or default on their loan based on provided set of features with labels. Provided data set
 contain complete loan data for all loans issued through 2007 to 2015, including the current loan status(Current,
 Late, Fully Paid, etc.). Instances with "Current" loan status are discarded to make it simple binary classification
-problem with two labels(unpaid,paid). After cleaning and feature extraction, the dataset contains 15 features and
+problem with two labels(unpaid,paid). After cleaning and feature extraction, the data set contains 15 features and
 285373 samples. 90% of entire data is allocated to training set and 10% is separated out for testing. Then only only
 20% of the training set is used for model training due to large size resulting in high time consumption.  
 
@@ -38,25 +38,37 @@ problem with two labels(unpaid,paid). After cleaning and feature extraction, the
 
 ## Adult Dataset
 
-The adult dataset contains census information from 1994.  Our taske is to predict whether a person makes more
+The adult data set contains census information from 1994.  Our task is to predict whether a person makes more
 than $50K/year. After preprocessing is applied, there are 11 features and 45000 remaining instances. The target 
 feature "income" is labeled as "high" when income is greater than $50K and "low" when it is less. 
 
-
 ## K-Neirest Naighbour 
 
-Knn algorithm classifies a data points based on its K closest naighbours in distance, where overrepresented
+Knn algorithm classifies a data points based on its K closest neighbors in distance, where over represented
 class within K will get the vote. K value and distance metric are the only parameters to tune for cross validation.
-It is slow with large datasets and high dimentional data. Also categorical features don't work well.  
+It is slow with large data sets and high dimensional data. Also categorical features don't work well. 5-fold twice
+repeated cross validation by changing k value gave $k_{best}=43$ for Lending Club data set and $k_{best}=27$ for Adult Data set. 
+This values of k correspond to maximum accuracy as shown in below plots. Then, the best model is used to make prediction on test
+set, where 
+
+\begin{figure}
+  \center
+    \includegraphics[width=6.0cm]{figs/LC_knn_acc_naigh.pdf}
+    \includegraphics[width=6.0cm]{figs/AD_knn_acc_naigh.pdf}
+  \center
+  \caption{Cross validation plots for KNN model}
+  \label{fig:knn_val}
+\end{figure}
 
 
-\includegraphics[width=6.0cm]{figs/LC_knn_acc_naigh.pdf}
-\includegraphics[width=6.0cm]{figs/AD_knn_acc_naigh.pdf}
-
-
-\includegraphics[width=8.0cm]{figs/LC_knn_learning_curve.png}
-\includegraphics[width=8.0cm]{figs/AD_knn_learning_curve.png}
-
+\begin{figure}
+  \center
+    \includegraphics[width=8.0cm]{figs/LC_knn_learning_curve.png}
+    \includegraphics[width=8.0cm]{figs/AD_knn_learning_curve.png}
+  \center
+  \caption{Cross validation plots for KNN model}
+  \label{fig:lear_curve_knn}
+\end{figure}
 
 
 ```{r,echo=FALSE}
@@ -74,15 +86,20 @@ kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Confusion matrix for Lendi
 
 \includegraphics[width=16.0cm]{figs/LC_pruned_tree_diag.png}
 
-
-
-\includegraphics[width=8.0cm]{figs/LC_tree_cp_xerror.png}
-\includegraphics[width=8.0cm]{figs/AD_tree_cp_xerror.png}
+\begin{figure}
+  \center
+    \includegraphics[width=8.0cm]{figs/LC_tree_cp_xerror.png}
+    \includegraphics[width=8.0cm]{figs/AD_tree_cp_xerror.png}
+  \center
+  \caption{Cross validation plots for Tree model}
+  \label{fig:cross_val_tree}
+\end{figure}
 
 
 
 \includegraphics[width=8.0cm]{figs/LC_tree_learning_curve.png}
 \includegraphics[width=8.0cm]{figs/AD_tree_learning_curve.png}
+
 
 ```{r,echo=FALSE}
 LC_con_mat_tree <- read.table("output/LC_confusion_mat_tree.txt", sep = "", header = TRUE)
