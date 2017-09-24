@@ -11,15 +11,14 @@ options(warn=-1)
 ```
 
 
-
-# Introduction
+#  Introduction
 
 Purpose of this assignment is to investigate and compare the performance of five different machine
 learning techniques such as K-Nearest Neighbor, Decision Trees with pruning, Boosted Derision Trees, Support Vector
 Machines and Artificial Neural Networks by applying them to two distinct classification problems(distinct datasets).
 In order to fulfill the requirement, "Lending Club Data set" from Kaggle and Adult Data set from UCI machine learning
-repository are used. For all methods on both data sets cross validation is performed in order to find optimum hyper parameter. Learning curve experiment is done by altering training data size and monitoring performance via prediction accuracy.    
-
+repository are used. For all methods on both data sets cross validation is performed in order to find optimum hyper
+parameter. Learning curve experiment is done by altering training data size and monitoring performance via prediction accuracy.    
 
 
 ## Lending Club Dataset
@@ -42,14 +41,30 @@ The adult data set contains census information from 1994.  Our task is to predic
 than $50K/year. After preprocessing is applied, there are 11 features and 45000 remaining instances. The target 
 feature "income" is labeled as "high" when income is greater than $50K and "low" when it is less. 
 
-## K-Neirest Naighbour 
+
+## Methods and Tools
+
+R-Studio and R are used for both coding and project writing. R-studio has natively built in markdown + latex + html
+via pandoc, that I used for project writing. Caret package in R provides really nicely build in libraries for a
+lot of machine learning techniques and very user friendly inplementation of parallel computing for cross validation
+via hyper parameter tuning. For all ML methods, I used 5-fold cross validation with repetations(2-5) in order to find
+parameters that correspond to maximum cross validation accuracy. For growing and pruning the tree "rpart" package is
+used.
+
+
+## K-Nearest Naighbour 
 
 Knn algorithm classifies a data points based on its K closest neighbors in distance, where over represented
 class within K will get the vote. K value and distance metric are the only parameters to tune for cross validation.
 It is slow with large data sets and high dimensional data. Also categorical features don't work well. 5-fold twice
-repeated cross validation by changing k value gave $k_{best}=43$ for Lending Club data set and $k_{best}=27$ for Adult Data set. 
-This values of k correspond to maximum accuracy as shown in below plots. Then, the best model is used to make prediction on test
-set, where 
+repeated cross validation by changing k value from 5 to 43 with step size 2 gave $k_{best}=43$ for Lending Club data
+set and $k_{best}=27$ for Adult Data set as depicted in Fig.\ref{fig:knn_val}. This values of k correspond to maximum
+accuracy. Then, using the best model estimated accuracies on test set are 73.1% for LC data and 83.1% for Adult Data.  
+
+
+Although Adult Data set contain mostly categorical features it performed better than Lending Club Data set.
+Some features such "country", "education number" and "fnlwgt" are removed! 
+
 
 \begin{figure}
   \center
@@ -60,16 +75,10 @@ set, where
   \label{fig:knn_val}
 \end{figure}
 
-
-\begin{figure}
-  \center
-    \includegraphics[width=8.0cm]{figs/LC_knn_learning_curve.png}
-    \includegraphics[width=8.0cm]{figs/AD_knn_learning_curve.png}
-  \center
-  \caption{Cross validation plots for KNN model}
-  \label{fig:lear_curve_knn}
-\end{figure}
-
+Learning curve results for LC Data set Fig.\ref{fig:lear_curve_knn} show decrease in training accuracy as
+training size grow, but testing accuracy don't change much after it reaches 20000 sample size. On the other hand, 
+for Adult Data both training and testing accuracies increase with data size meaning on could add more data to get
+better accuracy on unseen data. 
 
 ```{r,echo=FALSE}
 library(knitr)
@@ -77,14 +86,51 @@ LC_con_mat_knn <- read.table("output/LC_confusion_mat_knn.txt", sep = "", header
 AD_con_mat_knn <- read.table("output/AD_confusion_mat_knn.txt", sep = "", header = TRUE,
                              col.names = c("high","low"),row.names = c("high","low"))
 AD_con_mat_knn$row.names <- NULL
-kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Confusion matrix for Lending
+kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "KNN confusion matrix for Lending
       Club(left) and Adult data(right)")
 ```
 
 
-## Decision Tree Algorithm with Prunning
+\begin{figure}
+  \center
+    \includegraphics[width=8.0cm]{figs/LC_knn_learning_curve.png}
+    \includegraphics[width=8.0cm]{figs/AD_knn_learning_curve.png}
+  \center
+  \caption{Learning curve plots for KNN model}
+  \label{fig:lear_curve_knn}
+\end{figure}
 
-\includegraphics[width=16.0cm]{figs/LC_pruned_tree_diag.png}
+
+
+## Decision Tree Algorithm with Pruning
+
+Decision tree classifier is used with maximum information gain to determine wich feature is given a priority for
+splitting. Post pruning is used to prevent overfitting.
+Tree is grown to a large size (1000-6200) and complexity parameter with least x-value error is choosen with corresponding
+optimum size of tree to proceed further. Number of splits(tree size) is reduced to from 6200 to 29(cp=0.00059) for
+Lending Club data and from 2284 to 82(cp=0.00044) for Adult Data respectivaly. For both data sets accuracy of training set
+reduced due to pruning, while accuracy of testing set is improoved as expected. Effect of pruning on test set is more
+pronounced for LEnding Club Data set showing around ~8% inclrease, while Adult Data set show ~3% improovement. Per and post 
+pruning results are summarized in table2 via accuracy and kappa value metric.
+
+\begin{figure}
+  \center
+    \includegraphics[width=17.0cm]{figs/LC_pruned_tree_diag.png}
+  \center
+  \label{fig:LC_pruned_tree}
+\end{figure}
+
+
+```{r,echo=FALSE}
+LC_tree_tab <- read.table("output/LC_tree_pre_post_pruning_results.txt", sep = "", header = TRUE)
+AD_tree_tab <- read.table("output/AD_tree_pre_post_pruning_results.txt", sep = "", header = TRUE)
+LC_tree_tab <- LC_tree_tab[c("Accuracy","Kappa")]
+AD_tree_tab <- AD_tree_tab[c("Accuracy","Kappa")]
+  
+kable(list(LC_tree_tab, AD_tree_tab),caption = "Decision Trees pre and post pruning performance tabulated for Lending
+      Club(left) and Adult data(right)")
+```
+
 
 \begin{figure}
   \center
@@ -95,29 +141,90 @@ kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Confusion matrix for Lendi
   \label{fig:cross_val_tree}
 \end{figure}
 
+Learinig curve results for decision tree method ......................................
 
 
-\includegraphics[width=8.0cm]{figs/LC_tree_learning_curve.png}
-\includegraphics[width=8.0cm]{figs/AD_tree_learning_curve.png}
+\begin{figure}
+  \center
+    \includegraphics[width=8.0cm]{figs/LC_tree_learning_curve.png}
+    \includegraphics[width=8.0cm]{figs/AD_tree_learning_curve.png}
+  \center
+  \caption{Learning curve plots for tree model}
+  \label{fig:lear_curve_tree}
+\end{figure}
 
 
 ```{r,echo=FALSE}
 LC_con_mat_tree <- read.table("output/LC_confusion_mat_tree.txt", sep = "", header = TRUE)
 AD_con_mat_tree <- read.table("output/AD_confusion_mat_tree.txt", sep = "", header = TRUE)
-kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Decision Trees confusion matrix for Lending
+kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Pruned Decision Trees confusion matrix for Lending
       Club(left) and Adult data(right)")
 ```
 
 
 ## Gradient Boosting
 
-\includegraphics[width=8.0cm]{figs/LC_boost_acc_iter_shrink.pdf}
-\includegraphics[width=8.0cm]{figs/AD_boost_acc_iter_shrink.pdf}
+
+The gbm package implements extensions to Freund and Schapire’s AdaBoost
+algorithm and Friedman’s gradient boosting machine.
+
+The generalized boosted method determines the best fit through iterations.
+The downside to AdaBoost is using too many iterations and overfitting the
+data, also it doesn’t require a lot of tuning like other algorithms, and most of
+the work can be done by setting how many iterations we want to go through.
+
+
+```{r,echo=FALSE,eval=FALSE}
+## GBM - gradient boosting machine
+
+# parameters:
+# number of iterations, i.e. trees, (called n.trees in the gbm function)
+# complexity of the tree, called interaction.depth
+# learning rate: how quickly the algorithm adapts, called shrinkage
+# the minimum number of training set samples in a node to commence splitting (n.minobsinnode)
+
+
+```
+
+I decided to tune the model for iteration from 1 to 100 and shrinkage
+parameter [0.05,0.1,0.15] and keeping the interaction depth at 3 for abalone
+data, which gives a decent hypothesis set for GBM with iteration number =
+78, interaction.depth = 3 and shrinkage = 0.1. Running this against yields
+good answers in a quick period of time. For this small data set, the testing
+error starts as high error but goes down as we add more data, at the end we
+have a big gap between the training-set error and the testing-set error, and
+the curves do not level out, so it seems that if we add more data the testing
+error would keep going down. So I identify it suffers High Variance (overfits)
+because the testing error is much larger than the training error, adding more
+data is likely to help.
+However, the adult data set worked pretty well against this algorithm.
+The final values used for the model were iteration number = 51, interac-
+tion.depth = 5 and shrinkage = 0.15. The error curves level out quickly.
+Also from fig 7 we see that the area under the ROC curve is the greatest for
+this algorithm.
 
 
 
-\includegraphics[width=8.0cm]{figs/LC_boosting_learning_curve.png}
-\includegraphics[width=8.0cm]{figs/AD_boosting_learning_curve.png}
+\begin{figure}
+  \center
+    \includegraphics[width=8.0cm]{figs/LC_boost_acc_iter_shrink.pdf}
+    \includegraphics[width=8.0cm]{figs/AD_boost_acc_iter_shrink.pdf}
+  \center
+  \caption{Cross validation plots for boosted tree}
+  \label{fig:cross_val_boost}
+\end{figure}
+
+
+\begin{figure}
+  \center
+    \includegraphics[width=8.0cm]{figs/LC_boosting_learning_curve.png}
+    \includegraphics[width=8.0cm]{figs/AD_boosting_learning_curve.png}
+  \center
+  \caption{Learning curve plots for tree model}
+  \label{fig:lear_curve_boost}
+\end{figure}
+
+
 
 ```{r,echo=FALSE}
 LC_con_mat_boost <- read.table("output/LC_confusion_mat_boost.txt", sep = "", header = TRUE)
@@ -127,15 +234,26 @@ kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Boosting confusion matrix 
       Club(left) and Adult Data(right)")
 ```
 
+
 ## Neural Networks
 
-\includegraphics[width=8.0cm]{figs/LC_nnet_ROC_units_weight.pdf}
-\includegraphics[width=8.0cm]{figs/AD_nnet_ROC_units_weight.pdf}
+\begin{figure}
+  \center
+    \includegraphics[width=8.0cm]{figs/LC_nnet_ROC_units_weight.pdf}
+    \includegraphics[width=8.0cm]{figs/AD_nnet_ROC_units_weight.pdf}
+  \center
+  \caption{Cross validation plots for NNet}
+  \label{fig:cross_val_nnet}
+\end{figure}
 
-
-
-\includegraphics[width=8.0cm]{figs/LC_nnet_learning_curve.png}
-\includegraphics[width=8.0cm]{figs/AD_nnet_learning_curve.png}
+\begin{figure}
+  \center
+    \includegraphics[width=8.0cm]{figs/LC_nnet_learning_curve.png}
+    \includegraphics[width=8.0cm]{figs/AD_nnet_learning_curve.png}
+  \center
+  \caption{Learning curve plots for tree model}
+  \label{fig:lear_curve_nnet}
+\end{figure}
 
 
 ```{r,echo=FALSE}
@@ -149,8 +267,37 @@ kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "NNet confusion matrix for 
 ## Support Vector Machines
 
 
+\begin{figure}
+  \center
+    \includegraphics[width=8.0cm]{figs/LC_svm_acc_cost_sigmaRad.pdf}
+    \includegraphics[width=8.0cm]{figs/AD_svm_acc_cost_sigma.pdf}
+  \center
+  \caption{Cross validation plots for SVM}
+  \label{fig:cross_val_svm}
+\end{figure}
+
+
+\begin{figure}
+  \center
+    \includegraphics[width=8.0cm]{figs/LC_svm_learning_curve.png}
+    \includegraphics[width=8.0cm]{figs/AD_svm_learning_curveRad.png}
+  \center
+  \caption{Learning curve plots for SVM model}
+  \label{fig:lear_curve_svm}
+\end{figure}
+
+
+
+\begin{figure}
+  \center
+    \includegraphics[width=7.0cm]{figs/LC_svm_model_compare.pdf}
+    \includegraphics[width=7.0cm]{figs/AD_svm_model_compare.pdf}
+  \center
+  \caption{Comparison between linear and radial Kernels for SVM model}
+  \label{fig:mod_comp_svm}
+\end{figure}
+
 
 ## Conclusion
-
 
 
