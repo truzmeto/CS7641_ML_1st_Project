@@ -58,9 +58,9 @@ pruned_tree <- prune(model_trees, cp = cp)
 
 ## plotting pruned tree diagram
 library(rpart.plot)
-png("figs/LC_pruned_tree_diag.png", width = 6.0, height = 4.0, units = "in", res = 800)
-rpart.plot(pruned_tree, fallen.leaves = FALSE, cex = 0.3, tweak = 2,
-           shadow.col = "gray", sub = "Pruned Tree Diagram")
+png("figs/LC_pruned_tree_diag.png", width = 12.0, height = 6.0, units = "in", res = 800)
+rpart.plot(pruned_tree, fallen.leaves = FALSE, cex = 0.3, tweak = 1.6,
+           shadow.col = "gray", sub = "Pruned Tree Diagram LC")
 dev.off()
 
 # predictiong with pruned tree on test set

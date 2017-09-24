@@ -11,36 +11,43 @@ options(warn=-1)
 ```
 
 
+
 # Introduction
 
-Purpose of this assignmet is to investigate and compare the performance of five different machine
-learning techniques such as K-Neirest Naighbour, Desicion Trees, Boosted Desision Trees, Support Vector
-Machines and Artificial Neural Networks, when applied to two distinct classification problems(distinct datasets).
-In order to fullfil the requirement, "Lending Club Dataset" from Kaggle and Adult Dataset from UCI machine
-leraning repository are used.  
+Purpose of this assignment is to investigate and compare the performance of five different machine
+learning techniques such as K-Neirest Naighbour, Desicion Trees with prunning, Boosted Desision Trees, Support Vector
+Machines and Artificial Neural Networks by applying them to two distinct classification problems(distinct datasets).
+In order to fullfil the requirement, "Lending Club Dataset" from Kaggle and Adult Dataset from UCI machine leraning
+repository are used. For all methods on both datasets cross validation is performed in order to find optimum hyperparameter. Learning curve experiment is done by altering training data size and monitoring performance via prediction accuracy.    
 
 
 
 ## Lending Club Dataset
 
-Lending Club is the world’s largest online marketplace connecting borrowers and investors. Provided dataset
+Lending Club is the world’s largest online marketplace connecting borrowers and investors. Getting loan has become common practice in developed countries, which makes it interesting to learn how banks determine customer eligibility or credit worthiness given some information. In this problem, we apply unsupervised learning methods to predict if
+customer is goint to pay or default on their loan based on provided set of features with labels. Provided dataset
 contain complete loan data for all loans issued through 2007 to 2015, including the current loan status(Current,
-Late, Fully Paid, etc.). In this problem, we are suppose to predicte if customer is goint to pay or default on
-their loan based on provided set of features with labels. Instances with "Current" loan status are discarded to
-make it simple binary classification problem with two labels(unpaid,paid). After cleaning and feature
-extraction, the dataset contains 15 features and 285373 samples. Fraction(20%) of this data is used for training
-in order to reduce computation time, and 10% is kept for testing. 
+Late, Fully Paid, etc.). Instances with "Current" loan status are discarded to make it simple binary classification
+problem with two labels(unpaid,paid). After cleaning and feature extraction, the dataset contains 15 features and
+285373 samples. 90% of entire data is allocated to training set and 10% is separated out for testing. Then only only
+20% of the training set is used for model training due to large size resulting in high time consumption.  
 
+```{r, echo=FALSE}
+# put targe distributions
+```
 
 ## Adult Dataset
 
-The adult dataset contains census information from 1994. Our taske is to predict whether a person makes more
+The adult dataset contains census information from 1994.  Our taske is to predict whether a person makes more
 than $50K/year. After preprocessing is applied, there are 11 features and 45000 remaining instances. The target 
 feature "income" is labeled as "high" when income is greater than $50K and "low" when it is less. 
 
 
-
 ## K-Neirest Naighbour 
+
+Knn algorithm classifies a data points based on its K closest naighbours in distance, where overrepresented
+class within K will get the vote. K value and distance metric are the only parameters to tune for cross validation.
+It is slow with large datasets and high dimentional data. Also categorical features don't work well.  
 
 
 \includegraphics[width=6.0cm]{figs/LC_knn_acc_naigh.pdf}
@@ -52,9 +59,20 @@ feature "income" is labeled as "high" when income is greater than $50K and "low"
 
 
 
-## Desicion Tree Algorithm with Prunning
+```{r,echo=FALSE}
+library(knitr)
+LC_con_mat_knn <- read.table("output/LC_confusion_mat_knn.txt", sep = "", header = TRUE)
+AD_con_mat_knn <- read.table("output/AD_confusion_mat_knn.txt", sep = "", header = TRUE,
+                             col.names = c("high","low"),row.names = c("high","low"))
+AD_con_mat_knn$row.names <- NULL
+kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Confusion matrix for Lending
+      Club(left) and Adult data(right)")
+```
 
-\includegraphics[width=14.0cm]{figs/LC_pruned_tree_diag.png}
+
+## Decision Tree Algorithm with Prunning
+
+\includegraphics[width=16.0cm]{figs/LC_pruned_tree_diag.png}
 
 
 
@@ -65,6 +83,13 @@ feature "income" is labeled as "high" when income is greater than $50K and "low"
 
 \includegraphics[width=8.0cm]{figs/LC_tree_learning_curve.png}
 \includegraphics[width=8.0cm]{figs/AD_tree_learning_curve.png}
+
+```{r,echo=FALSE}
+LC_con_mat_tree <- read.table("output/LC_confusion_mat_tree.txt", sep = "", header = TRUE)
+AD_con_mat_tree <- read.table("output/AD_confusion_mat_tree.txt", sep = "", header = TRUE)
+kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Decision Trees confusion matrix for Lending
+      Club(left) and Adult data(right)")
+```
 
 
 ## Gradient Boosting
@@ -77,7 +102,13 @@ feature "income" is labeled as "high" when income is greater than $50K and "low"
 \includegraphics[width=8.0cm]{figs/LC_boosting_learning_curve.png}
 \includegraphics[width=8.0cm]{figs/AD_boosting_learning_curve.png}
 
+```{r,echo=FALSE}
+LC_con_mat_boost <- read.table("output/LC_confusion_mat_boost.txt", sep = "", header = TRUE)
+AD_con_mat_boost <- read.table("output/AD_confusion_mat_boost.txt", sep = "", header = TRUE)
 
+kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Boosting confusion matrix for Lending
+      Club(left) and Adult Data(right)")
+```
 
 ## Neural Networks
 
@@ -86,16 +117,20 @@ feature "income" is labeled as "high" when income is greater than $50K and "low"
 
 
 
-
 \includegraphics[width=8.0cm]{figs/LC_nnet_learning_curve.png}
 \includegraphics[width=8.0cm]{figs/AD_nnet_learning_curve.png}
 
 
+```{r,echo=FALSE}
+LC_con_mat_nnet <- read.table("output/LC_confusion_mat_nnet.txt", sep = "", header = TRUE)
+AD_con_mat_nnet <- read.table("output/AD_confusion_mat_nnet.txt", sep = "", header = TRUE)
+
+kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "NNet confusion matrix for Lending
+      Club(left) and Adult Data(right)")
+```
+
 ## Support Vector Machines
 
-
-\includegraphics[width=8.0cm]{figs/LC_svm_learning_curve.png}
-\includegraphics[width=8.0cm]{figs/AD_svm_learning_curve.png}
 
 
 ## Conclusion
