@@ -2,8 +2,13 @@
 title: "CS7641 Machine Learning First Assignment "
 author: "T. Ruzmetov"
 date: "September 20, 2017"
-output: pdf_document
+output: 
+  pdf_document
 ---
+
+\fontfamily{cmr}
+\fontsize{12}{22}
+\selectfont
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -23,7 +28,9 @@ parameter. Learning curve experiment is done by altering training data size and 
 
 ## Lending Club Dataset
 
-Lending Club is the world’s largest online marketplace connecting borrowers and investors. Getting loan has become common practice in developed countries, which makes it interesting to learn how banks determine customer eligibility or credit worthiness given some information. In this problem, we apply unsupervised learning methods to predict if
+Lending Club is the world’s largest online marketplace connecting borrowers and investors. Getting loan has become
+common practice in developed countries, which makes it interesting to learn how banks determine customer eligibility
+or credit worthiness given some information. In this problem, we apply unsupervised learning methods to predict if
 customer is going to pay or default on their loan based on provided set of features with labels. Provided data set
 contain complete loan data for all loans issued through 2007 to 2015, including the current loan status(Current,
 Late, Fully Paid, etc.). Instances with "Current" loan status are discarded to make it simple binary classification
@@ -62,10 +69,6 @@ set and $k_{best}=27$ for Adult Data set as depicted in Fig.\ref{fig:knn_val}. T
 accuracy. Then, using the best model estimated accuracies on test set are 73.1% for LC data and 83.1% for Adult Data.  
 
 
-Although Adult Data set contain mostly categorical features it performed better than Lending Club Data set.
-Some features such "country", "education number" and "fnlwgt" are removed! 
-
-
 \begin{figure}
   \center
     \includegraphics[width=6.0cm]{figs/LC_knn_acc_naigh.pdf}
@@ -75,10 +78,11 @@ Some features such "country", "education number" and "fnlwgt" are removed!
   \label{fig:knn_val}
 \end{figure}
 
-Learning curve results for LC Data set Fig.\ref{fig:lear_curve_knn} show decrease in training accuracy as
-training size grow, but testing accuracy don't change much after it reaches 20000 sample size. On the other hand, 
-for Adult Data both training and testing accuracies increase with data size meaning on could add more data to get
-better accuracy on unseen data. 
+
+Although Adult Data set contain mostly categorical features it performed better than Lending Club Data set.
+Some features such "country", "education number" and "fnlwgt" are removed! 
+
+
 
 ```{r,echo=FALSE}
 library(knitr)
@@ -100,18 +104,20 @@ kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "KNN confusion matrix for L
   \label{fig:lear_curve_knn}
 \end{figure}
 
+Learning curve results for LC Data set Fig.\ref{fig:lear_curve_knn} show decrease in training accuracy as
+training size grow, but testing accuracy don't change much after it reaches 20000 sample size. On the other hand, 
+for Adult Data both training and testing accuracies increase with data size meaning on could add more data to get
+better accuracy on unseen data. 
+
 
 
 ## Decision Tree Algorithm with Pruning
 
 Decision tree classifier is used with maximum information gain to determine wich feature is given a priority for
-splitting. Post pruning is used to prevent overfitting.
-Tree is grown to a large size (1000-6200) and complexity parameter with least x-value error is choosen with corresponding
-optimum size of tree to proceed further. Number of splits(tree size) is reduced to from 6200 to 29(cp=0.00059) for
-Lending Club data and from 2284 to 82(cp=0.00044) for Adult Data respectivaly. For both data sets accuracy of training set
-reduced due to pruning, while accuracy of testing set is improoved as expected. Effect of pruning on test set is more
-pronounced for LEnding Club Data set showing around ~8% inclrease, while Adult Data set show ~3% improovement. Per and post 
-pruning results are summarized in table2 via accuracy and kappa value metric.
+splitting. Post pruning is used to prevent overfitting. Tree is grown to a large size (1000-6200) and complexity
+parameter with least x-value error is choosen with corresponding optimum size of tree to proceed further. Number
+of splits(tree size) is reduced to from 6200 to 29(cp=0.00059) for Lending Club data and from 2284 to 82(cp=0.00044)
+for Adult Data respectivaly.
 
 \begin{figure}
   \center
@@ -132,6 +138,12 @@ kable(list(LC_tree_tab, AD_tree_tab),caption = "Decision Trees pre and post prun
 ```
 
 
+For both data sets accuracy of training set reduced due to pruning, while accuracy of testing set is improoved as
+expected. Effect of pruning on test set is more pronounced for Lending Club Data set showing around ~8% inclrease,
+while Adult Data set show ~3% improovement. Pre and post pruning results are summarized in table2 via accuracy and
+kappa value metric.
+
+
 \begin{figure}
   \center
     \includegraphics[width=8.0cm]{figs/LC_tree_cp_xerror.png}
@@ -141,7 +153,11 @@ kable(list(LC_tree_tab, AD_tree_tab),caption = "Decision Trees pre and post prun
   \label{fig:cross_val_tree}
 \end{figure}
 
-Learinig curve results for decision tree method ......................................
+Learinig curve results for decision tree method for both data sets form a plateu at about 70% of training data size for Lending
+Club Data and at around 80% of training size of Adult Data set. This suggests that both data sets have more than enough amount of
+training data for model to converge to optimum performance. For learning curve iterations by changing training set size I performed
+post pruning for every iteration. For that reason a learning curve for Lending Lclub Data set looks different than all other learning
+curves done by different models. More specifically rest of the models have a gap between training and testing error after convergence except decision tree model.
 
 
 \begin{figure}
@@ -157,21 +173,20 @@ Learinig curve results for decision tree method ................................
 ```{r,echo=FALSE}
 LC_con_mat_tree <- read.table("output/LC_confusion_mat_tree.txt", sep = "", header = TRUE)
 AD_con_mat_tree <- read.table("output/AD_confusion_mat_tree.txt", sep = "", header = TRUE)
-kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Pruned Decision Trees confusion matrix for Lending
+kable(list(LC_con_mat_tree, AD_con_mat_tree),caption = "Pruned Decision Trees confusion matrix for Lending
       Club(left) and Adult data(right)")
 ```
 
 
 ## Gradient Boosting
 
+For Decision Tree Boosting the 'gbm' method is used under caret package. It implements extensions to Freund and Schapire’s
+AdaBoost algorithm and Friedman’s gradient boosting machine. Repeated cross validation is performed by tuning complexity of
+the tree(interaction.depth) and learning rate(shrinkage) for 50 terations with stepsize 2. All values for above mentioned
+hyper parameters are shown in Fig.\ref{fig:cross_val_boost}. Optimum values choosen for Lending Club Data n.trees = 100,
+interaction.depth=9, shrinkage=0.15 ,and for Adult Data: n.trees = 80, interaction.depth=5, shrinkage=0.15. The minimum number
+of of training set sampleas in node to commence splitting is kept constant at 20. 
 
-The gbm package implements extensions to Freund and Schapire’s AdaBoost
-algorithm and Friedman’s gradient boosting machine.
-
-The generalized boosted method determines the best fit through iterations.
-The downside to AdaBoost is using too many iterations and overfitting the
-data, also it doesn’t require a lot of tuning like other algorithms, and most of
-the work can be done by setting how many iterations we want to go through.
 
 
 ```{r,echo=FALSE,eval=FALSE}
@@ -182,27 +197,7 @@ the work can be done by setting how many iterations we want to go through.
 # complexity of the tree, called interaction.depth
 # learning rate: how quickly the algorithm adapts, called shrinkage
 # the minimum number of training set samples in a node to commence splitting (n.minobsinnode)
-
-
 ```
-
-I decided to tune the model for iteration from 1 to 100 and shrinkage
-parameter [0.05,0.1,0.15] and keeping the interaction depth at 3 for abalone
-data, which gives a decent hypothesis set for GBM with iteration number =
-78, interaction.depth = 3 and shrinkage = 0.1. Running this against yields
-good answers in a quick period of time. For this small data set, the testing
-error starts as high error but goes down as we add more data, at the end we
-have a big gap between the training-set error and the testing-set error, and
-the curves do not level out, so it seems that if we add more data the testing
-error would keep going down. So I identify it suffers High Variance (overfits)
-because the testing error is much larger than the training error, adding more
-data is likely to help.
-However, the adult data set worked pretty well against this algorithm.
-The final values used for the model were iteration number = 51, interac-
-tion.depth = 5 and shrinkage = 0.15. The error curves level out quickly.
-Also from fig 7 we see that the area under the ROC curve is the greatest for
-this algorithm.
-
 
 
 \begin{figure}
@@ -214,6 +209,13 @@ this algorithm.
   \label{fig:cross_val_boost}
 \end{figure}
 
+Learning curves for Lendig Club Data set show
+that both training and testing accuracies converge at training size 20000 having big gap in between. It is likely due to model
+suffering from overfitting. Also for this data set we can see that cross validation curves did not yet reach plateu. I think
+adding more iterations could result in better rperformance. On the other hand, Adult Data set performed very good acheiving ~85%
+accuracy over testing data set. For a given number of iterations(n.trees) cross validation curves seem to have converged. Learning
+curves converge quickly as training size grow having almost no gap in between training an testing curves. This suggests that there
+is a good balance between bias and variance. 
 
 \begin{figure}
   \center
@@ -225,17 +227,26 @@ this algorithm.
 \end{figure}
 
 
-
 ```{r,echo=FALSE}
 LC_con_mat_boost <- read.table("output/LC_confusion_mat_boost.txt", sep = "", header = TRUE)
 AD_con_mat_boost <- read.table("output/AD_confusion_mat_boost.txt", sep = "", header = TRUE)
 
-kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Boosting confusion matrix for Lending
+kable(list(LC_con_mat_boost, AD_con_mat_boost),caption = "Boosting confusion matrix for Lending
       Club(left) and Adult Data(right)")
 ```
 
+\pagebreak
 
 ## Neural Networks
+
+"nnet" function is used through "caret" package in order to construct simple neural network model with single
+hidden layer of sigmoid activation function neurons. It uses backpropagation algoritm to minimize training error.
+Optimization parameters are number of hidden units and weight decay. Parameter set choosen for both data sets
+are displayed in Fig.\ref{fig:cross_val_nnet}. Best parameters for Lending Club Data set are n.hidden.unit=7,
+weight.decay=0.08, where for Adult Data set n.hidden.units=5, weight.decay=0.01. Cross validation curves represented via
+ROC type accuracy show that there is a room for further improovement for Lending Club Data set because for all values of
+weight decay parameter ROC value is making upward progress as we increase number of hidden units. In contrast, plot
+shown for Adult Data set have very close ROC value for hidden unit number 4 and 5 which gives more reliable optimum parameters.
 
 \begin{figure}
   \center
@@ -245,6 +256,9 @@ kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Boosting confusion matrix 
   \caption{Cross validation plots for NNet}
   \label{fig:cross_val_nnet}
 \end{figure}
+
+Again Adalt Data winning over the Lending Club Data set by illustrating 10% better accuracy on testing set and %7 on training set.
+Training and testing accuracies for both data sets reach plateu fast suggesting 10000 data points could be sufficient to train.
 
 \begin{figure}
   \center
@@ -260,11 +274,43 @@ kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "Boosting confusion matrix 
 LC_con_mat_nnet <- read.table("output/LC_confusion_mat_nnet.txt", sep = "", header = TRUE)
 AD_con_mat_nnet <- read.table("output/AD_confusion_mat_nnet.txt", sep = "", header = TRUE)
 
-kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "NNet confusion matrix for Lending
+kable(list(LC_con_mat_boost, AD_con_mat_boost),caption = "NNet confusion matrix for Lending
       Club(left) and Adult Data(right)")
 ```
 
+
 ## Support Vector Machines
+
+Suppot Vector Machine is unsupervised learning algorithm mostly used for classification problems.
+It classifies instances by choosing an optimum decision boundary(can be both lenear and non-linear)
+with maximum margin, where length of the margin is half distance between two support vectors. Here
+I applied SVM classifier for both data sets using two differenrr kernels: Linear and Radial. Tried
+polynomial one too, but since training was very time consuming decided to drop that one. For each
+choice of kernel, I performed 5 fold cross validation, Fig.\ref{fig:cross_val_svm}, to choose optimum
+hyper parameters. On Lending Club Data set radial kernel(acc=73.4%) performed a little better than
+linear kernel(72.8%), but performance of different kernels on Adult Data set was very close. So I decided
+to go further with radial kernel Fig.\ref{fig:mod_comp_svm}. 
+
+
+
+```{r,echo=FALSE,eval=FALSE}
+#LC_ac_svm_rad = 73.4%
+#LC_ac_svm_lin = 72.8%
+#AD_ac_svm_rad = 84.4%
+#AD_ac_svm_lin = 84.4% 
+
+
+#  Pros:
+#        It works really well with clear margin of separation
+#        It is effective in high dimensional spaces.
+#        It is effective in cases where number of dimensions is greater than the number of samples.
+#        It uses a subset of training points in the decision function (called support vectors), so it is also memory efficient.
+#  Cons:
+#        It doesn’t perform well, when we have large data set because the required training time is higher
+#        It also doesn’t perform very well, when the data set has more noise i.e. target classes are overlapping
+#        SVM doesn’t directly provide probability estimates, these are calculated using an expensive five-fold cross-validation. 
+
+```
 
 
 \begin{figure}
@@ -276,13 +322,29 @@ kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "NNet confusion matrix for 
   \label{fig:cross_val_svm}
 \end{figure}
 
+A surprizing result I detected with SVM radial
+kernel classifier is that learning curves Fig.\ref{fig:lear_curve_svm} for training and test sets in Adult
+Data set did not even come close. They both seem to have reached the plateu, but there is a gap, which is
+different than behaviour of all other models.  
+
+
+```{r,echo=FALSE}
+LC_con_mat_svm <- read.table("output/LC_confusion_mat_svmLin.txt", sep = "", header = TRUE)
+AD_con_mat_svm <- read.table("output/AD_confusion_mat_svmLin.txt", sep = "", header = TRUE)
+
+kable(list(LC_con_mat_svm, AD_con_mat_svm),caption = "SVM RBB confusion matrix for Lending
+      Club(left) and Adult Data(right)")
+```
+
+
 
 \begin{figure}
   \center
     \includegraphics[width=8.0cm]{figs/LC_svm_learning_curve.png}
     \includegraphics[width=8.0cm]{figs/AD_svm_learning_curveRad.png}
   \center
-  \caption{Learning curve plots for SVM model}
+  \caption{Learning curve plots for SVM model for Lending
+      Club(left) and Adult Data(right)}
   \label{fig:lear_curve_svm}
 \end{figure}
 
@@ -293,11 +355,109 @@ kable(list(LC_con_mat_knn, AD_con_mat_knn),caption = "NNet confusion matrix for 
     \includegraphics[width=7.0cm]{figs/LC_svm_model_compare.pdf}
     \includegraphics[width=7.0cm]{figs/AD_svm_model_compare.pdf}
   \center
-  \caption{Comparison between linear and radial Kernels for SVM model}
+  \caption{Comparison between linear and radial Kernels for SVM model for Lending
+      Club(left) and Adult Data(right)}
   \label{fig:mod_comp_svm}
 \end{figure}
 
 
+```{r,echo=FALSE}
+
+LC_time_svm <- read.table("output/LC_learning_results_svm.txt", sep = "", header = TRUE)
+LC_time_svm$model <- "svm"
+LC_time_svm <- LC_time_svm[-1,]
+LC_time_knn <- read.table("output/LC_learning_results_knn.txt", sep = "", header = TRUE)
+LC_time_knn$model <- "knn"
+LC_time_tree <- read.table("output/LC_learning_results_tree.txt", sep = "", header = TRUE)
+LC_time_tree$model <- "tree"
+LC_time_boost <- read.table("output/LC_learning_results_boost.txt", sep = "", header = TRUE)
+LC_time_boost$model <- "boost"
+LC_time_nnet <- read.table("output/LC_learning_results_nnet.txt", sep = "", header = TRUE)
+LC_time_nnet$model <- "nnet"
+LC_time_all <- rbind(LC_time_svm,LC_time_knn,LC_time_tree,LC_time_boost,LC_time_nnet)
+
+AD_time_svm <- read.table("output/AD_learning_results_svm.txt", sep = "", header = TRUE)
+AD_time_svm$model <- "svm"
+AD_time_svm <- AD_time_svm[-1,]
+AD_time_knn <- read.table("output/AD_learning_results_knn.txt", sep = "", header = TRUE)
+AD_time_knn$model <- "knn"
+AD_time_tree <- read.table("output/AD_learning_results_tree.txt", sep = "", header = TRUE)
+AD_time_tree$model <- "tree"
+AD_time_boost <- read.table("output/AD_learning_results_boost.txt", sep = "", header = TRUE)
+AD_time_boost$model <- "boost"
+AD_time_nnet <- read.table("output/AD_learning_results_nnet.txt", sep = "", header = TRUE)
+AD_time_nnet$model <- "nnet"
+AD_time_all <- rbind(AD_time_svm,AD_time_knn,AD_time_tree,AD_time_boost,AD_time_nnet)
+
+
+# extract accuracies for each model
+LC_accs <- aggregate(x=LC_time_all$test_accur, by = list(LC_time_all$model), max)
+AD_accs <- aggregate(x=AD_time_all$test_accur, by = list(AD_time_all$model), max)
+
+tab <- data.frame(LC_accs,AD_accs$x)
+names(tab) <- c("model","Accuracy LC","Accuracy AD")
+kable(tab,caption = " Accuracy Report Across Models and Data Sets")
+
+
+```
+
+
+```{r,echo=FALSE,fig.height=4,fig.width=8}
+library("lattice")
+library("plyr")
+library("ggplot2")
+library("Rmisc")
+p1 <- ggplot(LC_time_all, aes(x=data_size, y=cpu_time, colour = model)) +
+  geom_line() + 
+  geom_point() +
+  theme_bw() +
+  labs(title = "Training size vs trainig time LC", x = "Training Size", y = "CPU Time", color="") +
+  theme(legend.position = c(0.6,0.6),
+        axis.title = element_text(size = 16.0),
+        axis.text = element_text(size=10, face = "bold"),
+        plot.title = element_text(size = 15, hjust = 0.5),
+        #text = element_text(family="Times New Roman"),
+        axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"))
+
+p2 <- ggplot(AD_time_all, aes(x=data_size, y=cpu_time, colour = model)) +
+  geom_line() + 
+  geom_point() +
+  theme_bw() +
+  labs(title = "Training size vs trainig time AD", x = "Training Size", y = "CPU Time", color="") +
+  theme(legend.position = c(0.2,0.6),
+        axis.title = element_text(size = 16.0),
+        axis.text = element_text(size=10, face = "bold"),
+        plot.title = element_text(size = 15, hjust = 0.5),
+        #text = element_text(family="Times New Roman"),
+        axis.text.x = element_text(colour="black"),
+        axis.text.y = element_text(colour="black"))
+
+multiplot(p1,p2,cols=2)
+
+```
+
+\pagebreak
+
 ## Conclusion
+
+Gradiet Boosting was the best model compared to all other algoithms for both data sets reaching the
+accuracy of 74.2% for Lending Club Data set and 85.3% for Adult Data set. This is actually not so
+surprising because combination of many weak learners should naturally result in better prediction for
+specific type of data sets. Looks like both data sets have this property. Pruned decision tree performed as 
+second best (LC.acc=73.8%, Ad.acc=84.6%). Lending Club Data did not perform as good as Adult Data set
+supposedly due to noise, and it needs more and carefull feature engineering. Training data size vs training
+clock time plots show that computation time is linear with data size except SVM model, which showed exponential
+increase in cpu time.
+
+We learn that the supervised learning methods
+work well for data sets that have an underlining distribution, but when we
+compare and contrast models, the differences in their performance can be
+partly attributable not to their differing structure, but to the different levels
+of tuning effort we invest in them. Also the types of algorithms that work
+best are problem-specific.
+
+
+
 
 
