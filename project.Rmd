@@ -2,8 +2,7 @@
 title: "CS7641 Machine Learning First Assignment "
 author: "T. Ruzmetov"
 date: "September 20, 2017"
-output: 
-  pdf_document
+output: pdf_document
 ---
 
 \fontfamily{cmr}
@@ -20,7 +19,7 @@ options(warn=-1)
 
 Purpose of this assignment is to investigate and compare the performance of five different machine
 learning techniques such as K-Nearest Neighbor, Decision Trees with pruning, Boosted Derision Trees, Support Vector
-Machines and Artificial Neural Networks by applying them to two distinct classification problems(distinct datasets).
+Machines and Artificial Neural Networks by applying them to two distinct classification problems(distinct data sets).
 In order to fulfill the requirement, "Lending Club Data set" from Kaggle and Adult Data set from UCI machine learning
 repository are used. For all methods on both data sets cross validation is performed in order to find optimum hyper
 parameter. Learning curve experiment is done by altering training data size and monitoring performance via prediction accuracy.    
@@ -53,8 +52,8 @@ feature "income" is labeled as "high" when income is greater than $50K and "low"
 
 R-Studio and R are used for both coding and project writing. R-studio has natively built in markdown + latex + html
 via pandoc, that I used for project writing. Caret package in R provides really nicely build in libraries for a
-lot of machine learning techniques and very user friendly inplementation of parallel computing for cross validation
-via hyper parameter tuning. For all ML methods, I used 5-fold cross validation with repetations(2-5) in order to find
+lot of machine learning techniques and very user friendly implementation of parallel computing for cross validation
+via hyper parameter tuning. For all ML methods, I used 5-fold cross validation with repetitions(2-5) in order to find
 parameters that correspond to maximum cross validation accuracy. For growing and pruning the tree "rpart" package is
 used.
 
@@ -113,11 +112,15 @@ better accuracy on unseen data.
 
 ## Decision Tree Algorithm with Pruning
 
-Decision tree classifier is used with maximum information gain to determine wich feature is given a priority for
+Decision tree classifier is used with maximum information gain to determine which feature is given a priority for
 splitting. Post pruning is used to prevent overfitting. Tree is grown to a large size (1000-6200) and complexity
-parameter with least x-value error is choosen with corresponding optimum size of tree to proceed further. Number
+parameter with least x-value error is chosen with corresponding optimum size of tree to proceed further. Number
 of splits(tree size) is reduced to from 6200 to 29(cp=0.00059) for Lending Club data and from 2284 to 82(cp=0.00044)
-for Adult Data respectivaly.
+for Adult Data respectively. For both data sets accuracy of training set reduced due to pruning, while accuracy of
+testing set is improved as expected. Effect of pruning on test set is more pronounced for Lending Club Data set 
+showing around ~8% increase, while Adult Data set show ~3% improvement. Pre and post pruning results are summarized
+in table2 via accuracy and kappa value metric.
+
 
 \begin{figure}
   \center
@@ -125,7 +128,6 @@ for Adult Data respectivaly.
   \center
   \label{fig:LC_pruned_tree}
 \end{figure}
-
 
 ```{r,echo=FALSE}
 LC_tree_tab <- read.table("output/LC_tree_pre_post_pruning_results.txt", sep = "", header = TRUE)
@@ -138,12 +140,6 @@ kable(list(LC_tree_tab, AD_tree_tab),caption = "Decision Trees pre and post prun
 ```
 
 
-For both data sets accuracy of training set reduced due to pruning, while accuracy of testing set is improoved as
-expected. Effect of pruning on test set is more pronounced for Lending Club Data set showing around ~8% inclrease,
-while Adult Data set show ~3% improovement. Pre and post pruning results are summarized in table2 via accuracy and
-kappa value metric.
-
-
 \begin{figure}
   \center
     \includegraphics[width=8.0cm]{figs/LC_tree_cp_xerror.png}
@@ -153,10 +149,10 @@ kappa value metric.
   \label{fig:cross_val_tree}
 \end{figure}
 
-Learinig curve results for decision tree method for both data sets form a plateu at about 70% of training data size for Lending
+Learning curve results for decision tree method for both data sets form a plateau at about 70% of training data size for Lending
 Club Data and at around 80% of training size of Adult Data set. This suggests that both data sets have more than enough amount of
 training data for model to converge to optimum performance. For learning curve iterations by changing training set size I performed
-post pruning for every iteration. For that reason a learning curve for Lending Lclub Data set looks different than all other learning
+post pruning for every iteration. For that reason a learning curve for Lending Club Data set looks different than all other learning
 curves done by different models. More specifically rest of the models have a gap between training and testing error after convergence except decision tree model.
 
 
@@ -182,10 +178,10 @@ kable(list(LC_con_mat_tree, AD_con_mat_tree),caption = "Pruned Decision Trees co
 
 For Decision Tree Boosting the 'gbm' method is used under caret package. It implements extensions to Freund and Schapire’s
 AdaBoost algorithm and Friedman’s gradient boosting machine. Repeated cross validation is performed by tuning complexity of
-the tree(interaction.depth) and learning rate(shrinkage) for 50 terations with stepsize 2. All values for above mentioned
-hyper parameters are shown in Fig.\ref{fig:cross_val_boost}. Optimum values choosen for Lending Club Data n.trees = 100,
+the tree(interaction.depth) and learning rate(shrinkage) for 50 iterations with step size 2. All values for above mentioned
+hyper parameters are shown in Fig.\ref{fig:cross_val_boost}. Optimum values chosen for Lending Club Data n.trees = 100,
 interaction.depth=9, shrinkage=0.15 ,and for Adult Data: n.trees = 80, interaction.depth=5, shrinkage=0.15. The minimum number
-of of training set sampleas in node to commence splitting is kept constant at 20. 
+of of training set samples in node to commence splitting is kept constant at 20. 
 
 
 
@@ -209,10 +205,10 @@ of of training set sampleas in node to commence splitting is kept constant at 20
   \label{fig:cross_val_boost}
 \end{figure}
 
-Learning curves for Lendig Club Data set show
+Learning curves for Lending Club Data set show
 that both training and testing accuracies converge at training size 20000 having big gap in between. It is likely due to model
-suffering from overfitting. Also for this data set we can see that cross validation curves did not yet reach plateu. I think
-adding more iterations could result in better rperformance. On the other hand, Adult Data set performed very good acheiving ~85%
+suffering from overfitting. Also for this data set we can see that cross validation curves did not yet reach plateau. I think
+adding more iterations could result in better performance. On the other hand, Adult Data set performed very good achieving ~85%
 accuracy over testing data set. For a given number of iterations(n.trees) cross validation curves seem to have converged. Learning
 curves converge quickly as training size grow having almost no gap in between training an testing curves. This suggests that there
 is a good balance between bias and variance. 
@@ -240,11 +236,11 @@ kable(list(LC_con_mat_boost, AD_con_mat_boost),caption = "Boosting confusion mat
 ## Neural Networks
 
 "nnet" function is used through "caret" package in order to construct simple neural network model with single
-hidden layer of sigmoid activation function neurons. It uses backpropagation algoritm to minimize training error.
-Optimization parameters are number of hidden units and weight decay. Parameter set choosen for both data sets
+hidden layer of sigmoid activation function neurons. It uses backpropagation algorithm to minimize training error.
+Optimization parameters are number of hidden units and weight decay. Parameter set chosen for both data sets
 are displayed in Fig.\ref{fig:cross_val_nnet}. Best parameters for Lending Club Data set are n.hidden.unit=7,
 weight.decay=0.08, where for Adult Data set n.hidden.units=5, weight.decay=0.01. Cross validation curves represented via
-ROC type accuracy show that there is a room for further improovement for Lending Club Data set because for all values of
+ROC type accuracy show that there is a room for further improvement for Lending Club Data set because for all values of
 weight decay parameter ROC value is making upward progress as we increase number of hidden units. In contrast, plot
 shown for Adult Data set have very close ROC value for hidden unit number 4 and 5 which gives more reliable optimum parameters.
 
@@ -257,8 +253,8 @@ shown for Adult Data set have very close ROC value for hidden unit number 4 and 
   \label{fig:cross_val_nnet}
 \end{figure}
 
-Again Adalt Data winning over the Lending Club Data set by illustrating 10% better accuracy on testing set and %7 on training set.
-Training and testing accuracies for both data sets reach plateu fast suggesting 10000 data points could be sufficient to train.
+Again Adult Data winning over the Lending Club Data set by illustrating 10% better accuracy on testing set and %7 on training set.
+Training and testing accuracies for both data sets reach plateau fast suggesting 10000 data points could be sufficient to train.
 
 \begin{figure}
   \center
@@ -281,10 +277,10 @@ kable(list(LC_con_mat_boost, AD_con_mat_boost),caption = "NNet confusion matrix 
 
 ## Support Vector Machines
 
-Suppot Vector Machine is unsupervised learning algorithm mostly used for classification problems.
-It classifies instances by choosing an optimum decision boundary(can be both lenear and non-linear)
+Support Vector Machine is unsupervised learning algorithm mostly used for classification problems.
+It classifies instances by choosing an optimum decision boundary(can be both linear and non-linear)
 with maximum margin, where length of the margin is half distance between two support vectors. Here
-I applied SVM classifier for both data sets using two differenrr kernels: Linear and Radial. Tried
+I applied SVM classifier for both data sets using two different kernels: Linear and Radial. Tried
 polynomial one too, but since training was very time consuming decided to drop that one. For each
 choice of kernel, I performed 5 fold cross validation, Fig.\ref{fig:cross_val_svm}, to choose optimum
 hyper parameters. On Lending Club Data set radial kernel(acc=73.4%) performed a little better than
@@ -322,10 +318,11 @@ to go further with radial kernel Fig.\ref{fig:mod_comp_svm}.
   \label{fig:cross_val_svm}
 \end{figure}
 
-A surprizing result I detected with SVM radial
+A surprising result I detected with SVM radial
 kernel classifier is that learning curves Fig.\ref{fig:lear_curve_svm} for training and test sets in Adult
-Data set did not even come close. They both seem to have reached the plateu, but there is a gap, which is
-different than behaviour of all other models.  
+Data set did not even come close. They both seem to have reached the plateau, but there is a gap, which is
+different than behavior of all other models. I think it has to do with Adult Data set having too many categorical
+features since SVM uses distance metric. 
 
 
 ```{r,echo=FALSE}
@@ -359,6 +356,7 @@ kable(list(LC_con_mat_svm, AD_con_mat_svm),caption = "SVM RBB confusion matrix f
       Club(left) and Adult Data(right)}
   \label{fig:mod_comp_svm}
 \end{figure}
+
 
 
 ```{r,echo=FALSE}
@@ -401,6 +399,7 @@ kable(tab,caption = " Accuracy Report Across Models and Data Sets")
 
 ```
 
+\pagebreak
 
 ```{r,echo=FALSE,fig.height=4,fig.width=8}
 library("lattice")
@@ -437,25 +436,19 @@ multiplot(p1,p2,cols=2)
 
 ```
 
-\pagebreak
 
 ## Conclusion
 
-Gradiet Boosting was the best model compared to all other algoithms for both data sets reaching the
+Gradient Boosting was the best model compared to all other algorithms for both data sets reaching the
 accuracy of 74.2% for Lending Club Data set and 85.3% for Adult Data set. This is actually not so
 surprising because combination of many weak learners should naturally result in better prediction for
 specific type of data sets. Looks like both data sets have this property. Pruned decision tree performed as 
 second best (LC.acc=73.8%, Ad.acc=84.6%). Lending Club Data did not perform as good as Adult Data set
-supposedly due to noise, and it needs more and carefull feature engineering. Training data size vs training
+supposedly due to noise, and it needs more and careful feature engineering. Training data size vs training
 clock time plots show that computation time is linear with data size except SVM model, which showed exponential
-increase in cpu time.
-
-We learn that the supervised learning methods
-work well for data sets that have an underlining distribution, but when we
-compare and contrast models, the differences in their performance can be
-partly attributable not to their differing structure, but to the different levels
-of tuning effort we invest in them. Also the types of algorithms that work
-best are problem-specific.
+increase in CPU time. I learned that models are problem specific and when we compare them, the differences in
+their performance can be partly attributable not to their differing structure, but to the
+different levels of tuning effort we invest in them.
 
 
 
