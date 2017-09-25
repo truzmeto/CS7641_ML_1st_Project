@@ -5,7 +5,7 @@ library("lattice")
 library("plyr")
 library("stringr")
 library("caret")
-
+library(data.table)
 # loading locally stored data
 data <- read.csv("data/loan.csv", na.strings = c("NA",""))
 

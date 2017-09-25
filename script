@@ -1,10 +1,30 @@
 #!/bin/bash
 
-#ssh <gt-username>@cc-shuttle1.cc.gatech.edu
+#ssh truzmetov3@cc-shuttle1.cc.gatech.edu
 
+#1. create some dir's
 mkdir -p output clean_data figs
 
-Rscript LC_cleaning.R
-Rscript AD_cleaning.R
+#2. download Lending Club Data from Kaggle and put in "data" folder
 
+#3 perform cleaning if needed, although I provided cleaned data
+
+#Rscript LC_cleaning.R  #uncomment to activate
+#Rscript AD_cleaning.R  #uncomment to activate
+
+#4. execute all codes one by one
 Rscript LC_knn.R
+Rscript LC_tree.R
+Rscript LC_boost.R
+Rscript LC_svm.R
+Rscript LC_nnet.R
+
+Rscript AD_knn.R
+Rscript AD_tree.R
+Rscript AD_boost.R
+Rscript AD_svm.R
+Rscript AD_nnet.R
+
+#5. generate project report using all produced results 
+Rscript -e "rmarkdown::render('project.Rmd')"
+echo "done"
