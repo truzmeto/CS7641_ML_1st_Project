@@ -1,5 +1,5 @@
 
-# Unsupervised Learning Project
+# Supervised Learning Project
 
 ## Machine Learning 1st Assignment
 
