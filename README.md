@@ -1,5 +1,5 @@
 
-# CS7641_ML_1st_Project
+# Unsupervised Learning Project
 
 ## Machine Learning 1st Assignment
 
